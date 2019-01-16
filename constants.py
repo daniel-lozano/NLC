@@ -1,18 +1,3 @@
-#!/usr/bin/env python
-
-# ==============================================================================
-# WRITTEN BY: Jeremy Goh (for OFYP 18/19)
-# SUPERVISOR: Prof. Michel Gingras
-#
-# Stores the constants pertaining to the pyrochlore lattice, i.e., variables
-#   independent of the NLC order being considered, or parameters that should
-#   *not* be changed across different runs/trials.
-#
-# Imported into:
-#   - neutron_scattering_main.py
-#   - thermodynamic_main.py
-# ==============================================================================
-
 import numpy as np
 
 
@@ -26,7 +11,7 @@ def rotation(axis, angle):
         """
     
     # axis must be normalized first
-    axis /= np.sqrt(axis.dot(axis))
+    axis = axis*1/np.sqrt(np.dot(axis,axis)) #np.sqrt(axis.dot(axis))
     
     R = np.array([
                   [np.cos(angle) + axis[0] ** 2 * (1 - np.cos(angle)),
@@ -43,6 +28,10 @@ def rotation(axis, angle):
                   ])
                   
     return R
+
+#prueba=np.array([3,0,0])
+#angle=np.pi
+#print rotation(prueba,angle)
 
 # physical constants
 KB = 0.086173  # Boltzmann constant [meV/K]
@@ -93,6 +82,13 @@ NN_PAIRS_DICT = {'0': [],
           (5, 7), (5, 8), (5, 9), (7, 8), (7, 9), (8, 9),
           (9, 10), (9, 11), (9, 12), (10, 11), (10, 12), (11, 12)]
           }
+
+
+#clusters=['0','1','2','3','4Y','4I','4L']
+#for i in clusters:
+#    print i,NN_PAIRS_DICT[i]
+#
+
 # position vectors to sites in NLCE clusters
 R_DICT = {'0': np.array([[0, 0, 0]]),
     '1': np.array([[0, 0, 0],[1, 1, 0], [1, 0, 1], [0, 1, 1]]) / 4,
