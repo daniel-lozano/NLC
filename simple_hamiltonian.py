@@ -19,10 +19,10 @@ print("----%----------%----------%------STARTING CALCULUS----%----------%-------
 Jzz=1. #First neighbors interaction constant
 Jpm=0.0
 B_field=[0.0,0.0,0.0] # field
-T=0.1 # Kelvin
+T=0.1/KB # Kelvin
 gz=4.32 #Lande factor
 
-q=2*np.pi*np.arange(-2.501, 2.501, 0.025)#0.025
+q=2*np.pi*np.arange(-2.501, 2.501, 0.1)#0.025
 
 cluster=['0','1','2','3','4Y','4I','4L']
 
@@ -73,7 +73,7 @@ def get_thermal_average(eigenvals,eigenvect,linear_op,Temp):
 
 #Defining cluster to be use
 
-for c in range(len(cluster)-4):
+for c in range(len(cluster)-3):
     print "Initialicing calculus for cluster type ", cluster[c]
     
     N=N_DICT[cluster[c]] #Size of the system
@@ -141,18 +141,23 @@ for c in range(len(cluster)-4):
                 c_SF_intensity[c][l,h]+=Op_T_average.real*np.cos(q_vector.dot(r_ij))*Projection_factor_SF/48.
 
 
-    plt.subplot(121)
-    im1=plt.imshow(c_NSF_intensity[c],cmap="gist_heat")
-    plt.colorbar(im1,orientation="vertical")
-    plt.title("NSF,Cluster type="+str(c))
+#
+#    print "Max value=",np.amax(c_NSF_intensity)
+#    print "Min value=",np.amax(c_NSF_intensity)
+#    plt.figure(figsize=(12,5))
+#    plt.subplot(121)
+#    im1=plt.imshow(c_NSF_intensity[c],cmap="gist_heat")
+#    plt.colorbar(im1,orientation="vertical")
+#    plt.title("NSF,Cluster type="+str(c))
+#
+#    plt.subplot(122)
+#    im2=plt.imshow(c_SF_intensity[c],cmap="gist_heat")
+#    plt.colorbar(im2,orientation="vertical")
+#    plt.title("SF,Cluster type="+str(c))
+#
+#    plt.show()
 
-    plt.subplot(122)
-    im2=plt.imshow(c_SF_intensity[c],cmap="gist_heat")
-    plt.colorbar(im2,orientation="vertical")
-    plt.title("SF,Cluster type="+str(c))
-
-    plt.show()
-
+np.savez_compressed("data",SF=c_SF_intensity, NSF=c_NSF_intensity)
 
 
 
