@@ -11,6 +11,8 @@ from time import time
 #from scipy.stats import cauchy
 
 from constants import *
+from sums import *
+
 
 
 print("----%----------%----------%------STARTING CALCULUS----%----------%----------%----------%------")
@@ -45,7 +47,7 @@ for i in range(SF.shape[0]):
     c_SF_intensity=SF[i]
     c_NSF_intensity=NSF[i]
     
-    print "variation",abs(np.amax(c_NSF_intensity)-np.amax(c_NSF_intensity))
+    print "variation",abs(np.amax(c_NSF_intensity)-np.amin(c_NSF_intensity))
     plt.figure(figsize=(12,5))
     plt.subplot(121)
     im1=plt.imshow(c_NSF_intensity,cmap="gist_heat")
@@ -59,6 +61,13 @@ for i in range(SF.shape[0]):
 
     plt.show()
 
+
+Tot_contributions_NSF=cluster_contributions(NSF,4)
+Tot_contributions_SF=cluster_contributions(NSF,4)
+print SF.shape
+print Tot_contributions_SF.shape
+print NSF.shape
+print Tot_contributions_NSF.shape
 
 
 

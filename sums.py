@@ -1,24 +1,20 @@
 import numpy as np
 import math as mt
 
-
-
-
-
 '''
 DESCRIPTION: This function returns the contribution of each singular term defined as  multiplicity times the weigth of the cluster type.
 PARAMETERS: The parameter of the function is an array with the values of the mean values of an operator.
 OUTPUT: The function returns an array with the expression for each contribution up to some order k defined by the size of the input array.
 '''
 
-def cluster_contributions(weights,order):
+def cluster_contributions(weights ,order):
 #weights=[W0,W1,W2,W3,W4Y,W4I,W4L,....]
 
-    if(order+1>4):
+    if(order>4):
         raise ValueError("The order entered is to high! max order=4")
-    contribution=np.zeros(order+1)
+    contribution=np.zeros((order,weights.shape[1],weights.shape[1]))
 
-    for i in range(order+1):
+    for i in range(order):
         
         if i==0: contribution[i]=1*(weights[0])
         
@@ -45,7 +41,7 @@ OUTPUT: The function returns an array with the bare sums of the series, the bare
 
 
 def bare_sum(serie_terms):
-    sum_terms=np.zeros(len(serie_terms))
+    sum_terms=np.zeros((serie_terms.shape[1],serie_terms.shape[2]))
     
     for i in range(len(serie_terms)):
         sum_terms[i]=sum(serie_terms[:(i+1)])
@@ -85,7 +81,7 @@ def pascal_triangle(order,number_of_terms):#number>order+1
     OUTPUT:
 '''
 series=range(12)
-print series
+print(series)
 
 def euler_sum(series_terms,start,stop):
     
