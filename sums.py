@@ -9,12 +9,12 @@ OUTPUT: The function returns an array with the expression for each contribution 
 
 def cluster_contributions(weights ,order):
 #weights=[W0,W1,W2,W3,W4Y,W4I,W4L,....]
-
-    if(order>4):
+    print "order=", order
+    if(order+1>5):
         raise ValueError("The order entered is to high! max order=4")
-    contribution=np.zeros((order,weights.shape[1],weights.shape[1]))
+    contribution=np.zeros((order+1,weights.shape[1],weights.shape[1]))
 
-    for i in range(order):
+    for i in range(order+1):
         
         if i==0: contribution[i]=1*(weights[0])
         
@@ -41,16 +41,16 @@ OUTPUT: The function returns an array with the bare sums of the series, the bare
 
 
 def bare_sum(serie_terms):
-    sum_terms=np.zeros((serie_terms.shape[1],serie_terms.shape[2]))
+    
+    sum_terms=np.zeros(serie_terms.shape)
+    Contribution=np.zeros((serie_terms.shape[1],serie_terms.shape[2]))
     
     for i in range(len(serie_terms)):
-        sum_terms[i]=sum(serie_terms[:(i+1)])
+        Contribution+=serie_terms[i]
+        sum_terms[i]+=Contribution
     
     return sum_terms
 #
-series=range(10)
-#print series
-#print bare_sum(series)
 
 '''
     DESCRIPTION: This function returns an array with the pascal triangle numbers
@@ -80,29 +80,38 @@ def pascal_triangle(order,number_of_terms):#number>order+1
     PARAMETERS:
     OUTPUT:
 '''
-series=range(12)
-print(series)
+def product(array_like,ndarray_like):
+    product=np.zeros((ndarray_like.shape[1],ndarray_like.shape[2]))
+    
+    for i in range(len(array_like)):
+        product+=array_like[i]*ndarray_like[i]
+    
+    return product
+
+
 
 def euler_sum(series_terms,start,stop):
     
-    first_terms=sum(series_terms[:start])
-    #print first_terms
+    #Adding first terms before starting the Euler transformation
+    print type(series_terms)
     
+    first_terms=np.zeros((series_terms.shape[1],series_terms.shape[2]))
+    
+    for i in range(start):
+        first_terms+=series_terms[i]
+        
     terms_to_add=series_terms[start:(stop+1)]
-    print "Terms to add",terms_to_add
-    
-    
-    sum_tot=0
-    for i in range(len(terms_to_add)):
+
+    sum_tot=np.zeros((stop-start+1,series_terms.shape[1],series_terms.shape[2]))
+
+    for i in range(stop-start+1):
         
         print pascal_triangle(i,len(terms_to_add))
         
-        print pascal_triangle(i,len(terms_to_add))*terms_to_add
-        
-        sum_tot+=sum(pascal_triangle(i,len(terms_to_add))*terms_to_add)/2.**(i+1)
-    print sum_tot
+        sum_tot[i]=first_terms+product(pascal_triangle(i,len(terms_to_add)),terms_to_add)/2.**(i+1)
 
-euler_sum(series,1,11)
+    return sum_tot
+
 
 
 
