@@ -26,6 +26,8 @@ gz=4.32 #Lande factor
 
 q=2*np.pi*np.arange(-2.501, 2.501, 0.1)#0.025
 
+hh,l=np.meshgrid(q,q)
+
 cluster=['0','1','2','3','4Y','4I','4L']
 
 #Arrays to store the different scattering results
@@ -48,6 +50,7 @@ for i in range(SF.shape[0]):
     c_NSF_intensity=NSF[i]
     
     print "variation",abs(np.amax(c_NSF_intensity)-np.amin(c_NSF_intensity))
+
     plt.figure(figsize=(12,5))
     plt.subplot(121)
     im1=plt.imshow(c_NSF_intensity,cmap="gist_heat")
@@ -72,52 +75,64 @@ Bare_sums_NSF=bare_sum(Tot_contributions_NSF)
 Euler_sums_SF=euler_sum(Tot_contributions_SF,3,4)
 Euler_sums_NSF=euler_sum(Tot_contributions_NSF,3,4)
 
-print SF.shape
-print Tot_contributions_SF.shape
-print Bare_sums_SF.shape
-print NSF.shape
-print Tot_contributions_NSF.shape
-print Bare_sums_NSF.shape
+#print SF.shape
+#print Tot_contributions_SF.shape
+#print Bare_sums_SF.shape
+#print NSF.shape
+#print Tot_contributions_NSF.shape
+#print Bare_sums_NSF.shape
+#
+#levels=np.linspace(np.amin(Euler_sums_SF[1]),np.amax(Euler_sums_SF[1]),50)
+#im=plt.contour(hh,l,Euler_sums_SF[1],cmap="gist_heat",levels=levels)
+#plt.colorbar(im,orientation="vertical")
+#plt.title("Bare sum NSF order=" +str(1))
+#plt.show()
+#
 
-for i in range(Bare_sums_SF.shape[0]):
+
+for i in range(1,Bare_sums_SF.shape[0]):
     
     plt.figure(figsize=(12,5))
     plt.subplot(121)
-    im1=plt.imshow(Bare_sums_NSF[i],cmap="gist_heat")
-    plt.colorbar(im1,orientation="vertical")
-    plt.title("Bare sum NSF order=" +str(i))
+    im2=plt.imshow(Bare_sums_NSF[i],cmap="gist_heat")
+    plt.colorbar(im2,orientation="vertical")
+    plt.title("Bare sum NSF order= " +str(i))
+    
+    levels=np.linspace(np.amin(Bare_sums_SF[i]),np.amax(Bare_sums_SF[i]),50)
     
     plt.subplot(122)
-    im2=plt.imshow(Bare_sums_SF[i],cmap="gist_heat")
-    plt.colorbar(im2,orientation="vertical")
-    plt.title("Bare sum SF order= " +str(i))
+    im1=plt.contour(hh,l,Bare_sums_SF[i],cmap="gist_heat",levels=levels)
+    plt.colorbar(im1,orientation="vertical")
+    plt.title("Bare sum SF order=" +str(i))
 
     plt.show()
 
 for i in range(Euler_sums_SF.shape[0]):
     
-    plt.figure(figsize=(10,10))
+    plt.figure(figsize=(7,7))
     plt.subplot(221)
     im1=plt.imshow(Bare_sums_NSF[i-2],cmap="gist_heat")
     plt.colorbar(im1,orientation="vertical")
-    plt.title("Bare sum NSF order=" +str(i))
+    plt.title("Bare sum NSF order=" +str(i+3))
     
     plt.subplot(222)
-    im2=plt.imshow(Bare_sums_SF[i-2],cmap="gist_heat")
+    levels=np.linspace(np.amin(Bare_sums_SF[i-2]),np.amax(Bare_sums_SF[i-2]),50)
+    im2=plt.contour(hh,l,Bare_sums_SF[i-2],cmap="gist_heat",levels=levels)
     plt.colorbar(im2,orientation="vertical")
-    plt.title("Bare sum SF order= " +str(i))
+    plt.title("Bare sum SF order= " +str(i+3))
 
     plt.subplot(223)
     im1=plt.imshow(Euler_sums_NSF[i],cmap="gist_heat")
     plt.colorbar(im1,orientation="vertical")
-    plt.title("Euler sum NSF order=" +str(i))
+    plt.title("Euler sum NSF order=" +str(i+3))
     
     plt.subplot(224)
-    im2=plt.imshow(Euler_sums_SF[i],cmap="gist_heat")
+    levels=np.linspace(np.amin(Euler_sums_SF[i]),np.amax(Euler_sums_SF[i]),50)
+    im2=plt.contour(hh,l,Euler_sums_SF[i],cmap="gist_heat",levels=levels)
     plt.colorbar(im2,orientation="vertical")
-    plt.title("Euler sum SF order= " +str(i))
+    plt.title("Euler sum SF order= " +str(i+3))
 
-
+    plt.savefig("Euler_vs_Bare_sums_order"+str(i+3)+".png")
     plt.show()
 
 
