@@ -29,7 +29,7 @@ cluster=['0','1','2','3','4Y','4I','4L']
 #Arrays to store the different scattering results
 c_SF_intensity = np.zeros((len(cluster), q.size, q.size))
 c_NSF_intensity = np.zeros((len(cluster), q.size, q.size))
-print c_NSF_intensity[0][0,0]
+print(c_NSF_intensity[0][0,0])
 
 
 print("First Neighbor interaction constant=",Jzz)
@@ -73,8 +73,8 @@ def get_thermal_average(eigenvals,eigenvect,linear_op,Temp):
 
 #Defining cluster to be use
 
-for c in range(len(cluster)):
-    print "Initialicing calculus for cluster type ", cluster[c]
+for c in range(len(cluster)-4):
+    print("Initialicing calculus for cluster type ", cluster[c])
     
     N=N_DICT[cluster[c]] #Size of the system
     
@@ -84,7 +84,7 @@ for c in range(len(cluster)):
     
     Positions=R_DICT[cluster[c]] #Positions of the sites in the lattice
     
-    print "N=",N
+    print("N=",N)
 #    print "Nearest neighbors", NN
 #    print "Site types",ST
 #    print "Positions",Positions
@@ -141,23 +141,10 @@ for c in range(len(cluster)):
                 c_SF_intensity[c][l,h]+=Op_T_average.real*np.cos(q_vector.dot(r_ij))*Projection_factor_SF/48.
 
 
-#
-#    print "Max value=",np.amax(c_NSF_intensity)
-#    print "Min value=",np.amax(c_NSF_intensity)
-#    plt.figure(figsize=(12,5))
-#    plt.subplot(121)
-#    im1=plt.imshow(c_NSF_intensity[c],cmap="gist_heat")
-#    plt.colorbar(im1,orientation="vertical")
-#    plt.title("NSF,Cluster type="+str(c))
-#
-#    plt.subplot(122)
-#    im2=plt.imshow(c_SF_intensity[c],cmap="gist_heat")
-#    plt.colorbar(im2,orientation="vertical")
-#    plt.title("SF,Cluster type="+str(c))
-#
-#    plt.show()
 
-np.savez_compressed("data",SF=c_SF_intensity, NSF=c_NSF_intensity)
+
+
+np.savez_compressed("data_T"+str(round(T,2))+"_J"+str(Jzz)+"_Jpm"+str(Jpm),SF=c_SF_intensity, NSF=c_NSF_intensity)
 
 
 
