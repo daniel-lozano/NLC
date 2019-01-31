@@ -1,7 +1,4 @@
 
-import itertools as it
-import logging as log
-import os
 import matplotlib.pyplot as plt
 from datetime import timedelta
 from time import time

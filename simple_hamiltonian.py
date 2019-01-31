@@ -73,7 +73,7 @@ def get_thermal_average(eigenvals,eigenvect,linear_op,Temp):
 
 #Defining cluster to be use
 
-for c in range(len(cluster)-3):
+for c in range(len(cluster)):
     print "Initialicing calculus for cluster type ", cluster[c]
     
     N=N_DICT[cluster[c]] #Size of the system
@@ -85,10 +85,10 @@ for c in range(len(cluster)-3):
     Positions=R_DICT[cluster[c]] #Positions of the sites in the lattice
     
     print "N=",N
-    print "Nearest neighbors", NN
-    print "Site types",ST
-    print "Positions",Positions
-    
+#    print "Nearest neighbors", NN
+#    print "Site types",ST
+#    print "Positions",Positions
+
     Z_scatt=np.array([1, -1, 0]) / np.sqrt(2) # Scattering Polarization direction
 
     basis=spin_basis_1d(L=N,S='1/2',pauli=True)#Basis of the system
