@@ -2,6 +2,7 @@
 import matplotlib.pyplot as plt
 from datetime import timedelta
 from time import time
+from sys import argv
 
 #from quspin.basis import spin_basis_1d
 #from quspin.operators import hamiltonian, quantum_LinearOperator
@@ -36,9 +37,9 @@ print c_NSF_intensity[0][0,0]
 print("First Neighbor interaction constant=",Jzz)
 print("First Neighbor exchange=",Jpm)
 print("Magnetic field=",B_field)
-
-SF=np.load("data.npz")['SF']
-NSF=np.load("data.npz")['NSF']
+name=argv[1]
+SF=np.load(name)['SF']
+NSF=np.load(name)['NSF']
 print SF.shape[0]
 
 ans1=raw_input("Plot cluster constributions? (yes) or (no):")
