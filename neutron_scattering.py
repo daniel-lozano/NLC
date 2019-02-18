@@ -1,8 +1,8 @@
 
-
 import itertools as it
 import logging as log
 import os
+import matplotlib.pyplot as plt
 from datetime import timedelta
 from time import time
 
@@ -12,133 +12,142 @@ from scipy.stats import cauchy
 
 from constants import *
 
-# -----------------------------------------------------
-#  <model parameters>  !!! (CHANGE PARAMETERS HERE) !!!
-# -----------------------------------------------------
-# Parameters are stored as a list of dictionaries.
-# Append new dictionaries for new parameters you want to test
-# Each dictionary should contain the following test parameters
-#   as key-value pairs.
-# :name      for debugging + name of file to save results in
-# :clusters  list of clusters to consider for NLCE: ['0','1','2','3','4Y','4I','4L']
-#            the order of NLC-4 clusters must NOT be modified
-# :gz        Lande g-factor
-# :Jzz       Ising coupling [meV]
-# :J+-       symmetric planar exchange [meV]
-# :J+-+-     anisotropic planar exchange [meV]
-# :temp      temperature [K]
-# :B_ext     external magnetic field in global coord [T]
-# :hhl       wavevectors (hh0) and (00l)
-#            check that 0 is not included --> otherwise might have divide by 0 error
-# :trials    number of times to repeat each cluster calculation
-#            set to *no* disorder averaging (Recommended for >NLC-2)
-#            any Int>1 will activate disorder fields in the Hamiltonian
-# :Gamma     width for disorder TransVerse fields Lorentzian [meV]
 
-parameters_list = []
-parameters_list.append({
-                       'name': 'ns_final0',
-                       'clusters': ['0', '1', '2', '3', '4Y', '4I', '4L'],
-                       'gz': 4.32,
-                       'Jzz': 1,
-                       'J+-': 0.,
-                       'J+-+-': 0.,
-                       'temp': 0.1,
-                       'B_ext': [0.0, 0.0, 0],
-                       'hhl': np.arange(-2.501, 2.501, 0.025),
-                       'trials': 1,
-                       'Gamma': 0.19,
-                       })
-print "----%----------%----------%------STARTING CALCULUS----%----------%----------%----------%------"
-
-def get_thermal_average(eigenvals, eigenvecs,uu_op, temp):t
-    """
-        Calculates thermal average of the moment-moment correlators,
-        for both (SF, NSF) neutron scattering.
-        
-        :param eigenvals: array of eigenvalues for a given Hamiltonian (ndarray)
-        :param eigenvecs: array of eigenvectors for a given Hamiltonian (ndarray)
-        :param uu_op: OPerator to calculate thermal average of (site-dependent)
-        :param temp: temperature to calculate thermal average at
-        :return: averaged correlation
-        """
-    ss_avg=0
-    
-    Z=0
-    
-    # shift eigenvalue spectrum to avoid negative E and large Z values;
-    # leaves thermal avg unchanged
-    eigenvals = eigenvals-eigenvals.min()
-    
-    for E_n, n in zip(eigenvals, eigenvecs.T):
-        ss_avg += np.dot(n.conj(), uu_op.matvec(n)) * np.exp(-E_n / (KB * temp))
-        Z += np.exp(-E_n / (KB * temp))
-    
-    return ss_avg.real / Z
+print("----%----------%----------%------STARTING CALCULUS----%----------%----------%----------%------")
 
 
-def construct_hamiltonian(nl, basis,J_zz, J_pm, J_pmpm, gz, B_ext, width= 0.19, tv_field= False):
-    """
-        Constructs the symmetry-allowed, nearest-neighbour, effective spin-1/2 Hamiltonian for
-        non-Kramers;
-        Allows for random transverse field model and external magnetic fields to be applied;
-        
-        :param nlc:      Choice of which NLC-? calculation to perform;
-        Corresponds to number and arrangement of tetrahedra (1, 2, 3, 4I, 4L, 4Y);
-        :param basis:    Basis corresponding to nlc cluster
-        :param J_zz:     Ising spin-ice coupling [meV]
-        :param J_pm:     XY-like exchange [meV]
-        :param J_pmpm:   In-plane anisotropic exchange [meV]
-        :param gz:       Lande g-factor
-        :param B_ext:    External magnetic field in global coordinates [T]
-        :param width:    width for disorder TransVerse fields Lorentzian [meV]
-        :param tv_field: Boolean to activate random TransVerse fields at each site (default False)
-        :return:         Hamiltonian object (sparse matrix)
-        """
-    # generate indices of Nearest Neighbour pairs + Site Types (for Z_DIR) of the N sites
-    # cf. pyrochlore_NLC_numbering.pdf
-    N = N_DICT[nlc]  # number of sites
-    ST = ST_DICT[nlc]  # Site Types
-    NN_pairs = NN_PAIRS_DICT[nlc]  # Nearest Neighbour pairings
-    
-    # define coefficients of operators using site-coupling lists
-    Jzz = [[J_zz, i, j] for (i, j) in NN_pairs]
-    Jpm = [[-J_pm, i, j] for (i, j) in NN_pairs]
-    Jpp = [[J_pmpm * GAMMA[ST[i], ST[j]], i, j] for (i, j) in NN_pairs]
-    Jmm = [[J_pmpm * np.conj(GAMMA[ST[i], ST[j]]), i, j] for (i, j) in NN_pairs]
-    m_z = [[-(U_B * gz) * Z_DIR[ST[i]].dot(B_ext), i] for i in range(N)]
-    
-    if tv_field:
-        # generate Lorentz distribution for disorder fields
-        tv_fields = cauchy(scale=width)
-        h_x = [[-np.abs(tv_fields.rvs()), i] for i in range(N)]
-    else:
-        h_x = []
+Jzz=1. #First neighbors interaction constant
+Jpm=0.0
+B_field=[0.0,0.0,0.0] # field
+T=0.1/KB # Kelvin
+gz=4.32 #Lande factor
 
-    # static and dynamic lists
-    static = [["zz", Jzz], ["+-", Jpm], ["-+", Jpm], ["++", Jpp], ["--", Jmm],
-              ["x", h_x], ["z", m_z]]
-    dynamic = []
+q=2*np.pi*np.arange(-4.01, 4.01, 0.1)#0.025
 
-    # compute the Hamiltonian
-    H = hamiltonian(static, dynamic, basis=basis,
-                check_herm=False, check_symm=False)
-    # print(f"Hamiltonian:\n{H.toarray()}")
+cluster=['0','1','2','3','4Y','4I','4L']
+
+#Arrays to store the different scattering results
+c_SF_intensity = np.zeros((len(cluster), q.size, q.size))
+c_NSF_intensity = np.zeros((len(cluster), q.size, q.size))
+print(c_NSF_intensity[0][0,0])
+
+
+print("First Neighbor interaction constant=",Jzz)
+print("First Neighbor exchange=",Jpm)
+print("Magnetic field=",B_field)
+
+
+
+def gen_hamiltonian(basis,N,Jzz,Jpm,B_field,NN):
+
+    print("Number of sites=",N)
+
+
+    J_zz=[[Jzz,i,j] for (i,j) in NN]
+    J_pm=[[-Jpm,i,j] for (i,j) in NN]
+    z_field=[[(U_B * gz)*np.matmul(B_field,Z_DIR[ST[i]]),i] for i in range(N)] #Carefull with the directions!!! it should be Z\dotB
+
+    #Time independe parameters of the Hamiltonian
+    static=[["zz",J_zz],["z",z_field],["+-",J_pm],["-+",J_pm]]
     
+    #Time dependent parameters of the Hamiltonian
+    dynamic=[]
+
+
+    H=hamiltonian(static,dynamic,dtype=np.float64,basis=basis,check_herm=False, check_symm=False)
     return H
 
+def get_thermal_average(eigenvals,eigenvect,linear_op,Temp):
+
+    average=0 #Average of the linear operator
+    Z=0 #Partition function
+    eigenvals-=np.ones(len(eigenvals))*min(eigenvals)
+    
+    for val,vect in zip(eigenvals,eigenvect.T):
+        average+=np.dot(vect.conj(),linear_op.matvec(vect))*np.exp(-val/(KB*Temp))
+        Z+=np.exp(-val/(KB*Temp))
+    
+    return average/Z
+
+
+
+#Defining cluster to be use
+
+for c in range(len(cluster)-4):
+    print("Initialicing calculus for cluster type ", cluster[c])
+    
+    N=N_DICT[cluster[c]] #Size of the system
+    
+    NN=NN_PAIRS_DICT[cluster[c]] #Pairs in the system
+    
+    ST=ST_DICT[cluster[c]] #Site types
+    
+    Positions=R_DICT[cluster[c]] #Positions of the sites in the lattice
+    
+    print("N=",N)
+#    print "Nearest neighbors", NN
+#    print "Site types",ST
+#    print "Positions",Positions
+
+    Z_scatt=np.array([1, -1, 0]) / np.sqrt(2) # Scattering Polarization direction
+
+    basis=spin_basis_1d(L=N,S='1/2',pauli=True)#Basis of the system
+    print("Basis of the system")
+    print(basis)
+    H=gen_hamiltonian(basis,N,Jzz,Jpm,B_field,NN)
+    
+    #Obtaining the eigen values and eigen vectors of the Hamiltonian
+    eigenvals,eigenvect=H.eigh()
+    for i in eigenvect:
+        if(list(i).count(1)+list(i).count(-1)!=1):
+            print("There's a non classical contribution!!!")
+    #Finding all the correlation coefficients
+    
+    for s1,s2 in it.product(range(N),range(N)):
+
+        #Generating the coefficient of the quantum operator
+        coefficient=[[(U_B*KB)**2,s1,s2]]#   [[value,site1,site2 ]]
+        linear_op=quantum_LinearOperator([['zz',coefficient]], basis=basis, check_herm=False, check_symm=False)
+        
+        #Average value of the operator
+        Op_T_average=get_thermal_average(eigenvals,eigenvect,linear_op,T)
+        
+
+    #At this point the prefactor due to the direction and the exponential factor must be multiply by the average factor previously found to have the total scattering function, the different type of cluster must be included aswell
+
+        for sym in range(SYM.shape[0]):
+            
+            #Relative position vector and Z directions for both spin in the correlation factor
+        
+            r_ij=np.matmul(SYM[sym],Positions[s1]-Positions[s2])
+            
+            z_1=np.matmul(SYM[sym],Z_DIR[ST[s1]])
+            z_2=np.matmul(SYM[sym],Z_DIR[ST[s2]])
+            
+            dir_s1=np.cross(z_1, Z_scatt)
+            dir_s2=np.cross(z_2, Z_scatt)
+
+            Projection_factor_NSF=np.dot(z_1,Z_scatt)*np.dot(z_2,Z_scatt)
+           
+
+
+            for h,l in it.product(range(q.size),range(q.size)):#
+    
+                q_vector=np.array([q[h],q[h],q[l]])
+                
+                X_scatt=np.array([q[h],q[h],q[l]])/np.sqrt(2.*q[h]**2+q[l]**2)
+                
+                Projection_factor_SF=np.dot(dir_s1,X_scatt)*np.dot(dir_s2,X_scatt)
+
+                c_NSF_intensity[c][l,h]+=Op_T_average.real*np.cos(q_vector.dot(r_ij))*Projection_factor_NSF/48.
+
+                c_SF_intensity[c][l,h]+=Op_T_average.real*np.cos(q_vector.dot(r_ij))*Projection_factor_SF/48.
 
 
 
 
 
-
-
-
-
-
-
-
+np.savez_compressed("data_T"+str(round(T,2))+"_J"+str(Jzz)+"_Jpm"+str(Jpm),SF=c_SF_intensity, NSF=c_NSF_intensity)
 
 
 

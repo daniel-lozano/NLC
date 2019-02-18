@@ -22,7 +22,7 @@ B_field=[0.0,0.0,0.0] # field
 T=0.1/KB # Kelvin
 gz=4.32 #Lande factor
 
-q=2*np.pi*np.arange(-2.501, 2.501, 0.1)#0.025
+q=2*np.pi*np.arange(-4.01, 4.01, 0.1)#np.arange(-2.501, 2.501, 0.1)
 
 cluster=['0','1','2','3','4Y','4I','4L']
 
@@ -78,17 +78,23 @@ def find_aiao(c,N,basis): #Find the configurations that have an all-in or an all
     OPERATORS=[] #Stores the sites to get the all in all out state
     L=2**N
     print("L=",L)
-    #    print "Nearest neighbors", NN
-    #    print "Site types",ST
-    #    print "Positions",Positions
-    
+#    print "Nearest neighbors", NN
+#    print "Site types",ST
+#    print "Positions",Positions
+#    
     if(c>0):
+        min_num=min(c,4)
         
         print("finding positions")
-        for t in range(c):
+        for t in range(min_num):
             sites_of_z=np.zeros(N)
+            
             for index in range(4):
                 sites_of_z[index+3*t]=1
+            
+            if(t>0):
+                sites_of_z[3*t]=-1
+
             OPERATORS.append(sites_of_z)
     
         indices=[]
@@ -111,6 +117,9 @@ def find_aiao(c,N,basis): #Find the configurations that have an all-in or an all
                 if(val==4 or val==-4):
                     indices.append(index)
         print("Positions found")
+        
+        print(basis)
+        print(indices)
         return np.array(indices)
     return []
 
@@ -121,7 +130,7 @@ def find_aiao(c,N,basis): #Find the configurations that have an all-in or an all
 
 #Defining cluster to be use
 
-for c in range(len(cluster)):
+for c in range(len(cluster)-4):
     print("")
     print("Initialicing calculus for cluster type ", cluster[c])
     
@@ -153,8 +162,8 @@ for c in range(len(cluster)):
     
     #Obtaining the eigen values and eigen vectors of the Hamiltonian
     eigenvals,eigenvect=H.eigh()
-    print(eigenvals)
-    
+#    print(eigenvals)
+
     contributing=np.ones(len(eigenvect)) #Check contributions of states that are not all-in-all-out states
    
     
@@ -220,7 +229,7 @@ for c in range(len(cluster)):
 
 
 
-np.savez_compressed("no_aiao_data_T"+str(round(T,2))+"_J"+str(Jzz)+"_Jpm"+str(Jpm),SF=c_SF_intensity, NSF=c_NSF_intensity)
+np.savez_compressed("NLC1_no_aiao_data_T"+str(round(T,2))+"_J"+str(Jzz)+"_Jpm"+str(Jpm),SF=c_SF_intensity, NSF=c_NSF_intensity)
 
 
 

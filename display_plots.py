@@ -22,7 +22,7 @@ B_field=[0.0,0.0,0.0] # field
 T=0.1/KB # Kelvin
 gz=4.32 #Lande factor
 
-q=2*np.pi*np.arange(-2.501, 2.501, 0.1)#0.025
+q=2*np.pi*np.arange(-4.01, 4.01, 0.1)#np.arange(-2.501, 2.501, 0.1)#
 
 hh,l=np.meshgrid(q,q)
 
@@ -44,27 +44,36 @@ print SF.shape[0]
 
 ans1=raw_input("Plot cluster constributions? (yes) or (no):")
 
+keyword="viridis"
 
 for i in range(SF.shape[0]):
     
     c_SF_intensity=SF[i]
     c_NSF_intensity=NSF[i]
+    Tot=c_SF_intensity+c_NSF_intensity
     
     print "variation",abs(np.amax(c_NSF_intensity)-np.amin(c_NSF_intensity))
     
     if(ans1=="yes"):
     
         plt.figure(figsize=(12,5))
-        plt.subplot(121)
-        im1=plt.imshow(c_NSF_intensity,cmap="gist_heat")
-        plt.colorbar(im1,orientation="vertical")
+        plt.subplot(131)
+        im1=plt.imshow(c_NSF_intensity,cmap=keyword)
+        cbar=plt.colorbar(im1,orientation="horizontal",pad=0.1)
+        cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("NSF,Cluster type="+str(i))
 
-        plt.subplot(122)
-        im2=plt.imshow(c_SF_intensity,cmap="gist_heat")
-        plt.colorbar(im2,orientation="vertical")
+        plt.subplot(132)
+        im2=plt.imshow(c_SF_intensity,cmap=keyword)
+        cbar=plt.colorbar(im2,orientation="horizontal",pad=0.1)
+        cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("SF,Cluster type="+str(i))
-
+        
+        plt.subplot(133)
+        im2=plt.imshow(Tot,cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)))
+        cbar=plt.colorbar(im2,orientation="horizontal",pad=0.1)
+        cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
+        plt.title("Total,Cluster type="+str(i))
         plt.show()
 
 
@@ -98,17 +107,27 @@ if (ans2=="yes"):
     for i in range(1,Bare_sums_SF.shape[0]):
     
         plt.figure(figsize=(12,5))
-        plt.subplot(121)
-        im2=plt.imshow(Bare_sums_NSF[i],cmap="gist_heat")
-        plt.colorbar(im2,orientation="vertical")
+        plt.subplot(131)
+        im2=plt.imshow(Bare_sums_NSF[i],cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)))
+        cbar=plt.colorbar(im2,orientation="horizontal",pad=0.1)
+        cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Bare sum NSF order= " +str(i))
     
-        levels=np.linspace(np.amin(Bare_sums_SF[i]),np.amax(Bare_sums_SF[i]),50)
-    
-        plt.subplot(122)
-        im1=plt.contour(hh,l,Bare_sums_SF[i],cmap="gist_heat",levels=levels)
-        plt.colorbar(im1,orientation="vertical")
+        levels=np.linspace(np.amin(Bare_sums_SF[i]),np.amax(Bare_sums_SF[i]),200)
+
+        plt.subplot(132)
+        im1=plt.imshow(Bare_sums_SF[i],cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)))
+        cbar=plt.colorbar(im1,orientation="horizontal",pad=0.1)
+        cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Bare sum SF order=" +str(i))
+        
+        levels=np.linspace(np.amin(Bare_sums_SF[i]+Bare_sums_NSF[i]),np.amax(Bare_sums_SF[i]+Bare_sums_NSF[i]),200)
+        
+        plt.subplot(133)
+        im1=plt.imshow(Bare_sums_SF[i]+Bare_sums_NSF[i],cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)))
+        cbar=plt.colorbar(im1,orientation="horizontal",pad=0.1)
+        cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
+        plt.title("Bare sum Total order=" +str(i))
 
         plt.show()
 
@@ -116,27 +135,49 @@ if (ans3=="yes"):
     for i in range(Euler_sums_SF.shape[0]):
     
         plt.figure(figsize=(7,7))
-        plt.subplot(221)
-        im1=plt.imshow(Bare_sums_NSF[i-2],cmap="gist_heat")
-        plt.colorbar(im1,orientation="vertical")
+        plt.subplot(231)
+        im1=plt.imshow(Bare_sums_NSF[i-2],cmap=keyword)
+        cbar=plt.colorbar(im1,orientation="horizontal",pad=0.1)
+        cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Bare sum NSF order=" +str(i+3))
     
-        plt.subplot(222)
-        levels=np.linspace(np.amin(Bare_sums_SF[i-2]),np.amax(Bare_sums_SF[i-2]),50)
-        im2=plt.contour(hh,l,Bare_sums_SF[i-2],cmap="gist_heat",levels=levels)
-        plt.colorbar(im2,orientation="vertical")
+        plt.subplot(232)
+#        levels=np.linspace(np.amin(Bare_sums_SF[i-2]),np.amax(Bare_sums_SF[i-2]),200)
+#        im2=plt.contour(hh,l,Bare_sums_SF[i-2],cmap=keyword,levels=levels)
+        im2=plt.imshow(Bare_sums_SF[i-2],cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)))
+        cbar=plt.colorbar(im2,orientation="horizontal",pad=0.1)
+        cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Bare sum SF order= " +str(i+3))
+        
+        plt.subplot(233)
+#        levels=np.linspace(np.amin(Bare_sums_SF[i-2]+Bare_sums_NSF[i-2]),np.amax(Bare_sums_SF[i-2]+Bare_sums_NSF[i-2]),200)
+#        im2=plt.contour(hh,l,Bare_sums_SF[i-2]+Bare_sums_NSF[i-2],cmap=keyword,levels=levels)
+        im3=plt.imshow(Bare_sums_SF[i-2]+Bare_sums_NSF[i-2],cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)))
+        cbar=plt.colorbar(im3,orientation="horizontal",pad=0.1)
+        cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
+        plt.title("Bare sum total order= " +str(i+3))
 
-        plt.subplot(223)
-        im1=plt.imshow(Euler_sums_NSF[i],cmap="gist_heat")
-        plt.colorbar(im1,orientation="vertical")
+        plt.subplot(234)
+        im1=plt.imshow(Euler_sums_NSF[i],cmap=keyword)
+        cbar=plt.colorbar(im1,orientation="horizontal",pad=0.1)
+        cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Euler sum NSF order=" +str(i+3))
     
-        plt.subplot(224)
-        levels=np.linspace(np.amin(Euler_sums_SF[i]),np.amax(Euler_sums_SF[i]),50)
-        im2=plt.contour(hh,l,Euler_sums_SF[i],cmap="gist_heat",levels=levels)
-        plt.colorbar(im2,orientation="vertical")
+        plt.subplot(235)
+#        levels=np.linspace(np.amin(Euler_sums_SF[i]),np.amax(Euler_sums_SF[i]),200)
+#        im2=plt.contour(hh,l,Euler_sums_SF[i],cmap=keyword,levels=levels)
+        im2=plt.imshow(Euler_sums_SF[i],cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)) )
+        cbar=plt.colorbar(im2,orientation="horizontal",pad=0.1)
+        cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Euler sum SF order= " +str(i+3))
+        
+        plt.subplot(236)
+#        levels=np.linspace(np.amin(Euler_sums_SF[i]+Euler_sums_NSF[i]),np.amax(Euler_sums_SF[i]+Euler_sums_NSF[i]),200)
+#        im3=plt.contour(hh,l,Euler_sums_SF[i]+Euler_sums_NSF[i],cmap=keyword,levels=levels)
+        im3=plt.imshow(Euler_sums_SF[i]+Euler_sums_NSF[i],cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)) )
+        cbar=plt.colorbar(im3,orientation="horizontal",pad=0.1)
+        cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
+        plt.title("Euler sum Tot order= " +str(i+3))
 
         plt.savefig("Euler_vs_Bare_sums_order"+str(i+3)+".png")
         plt.show()
@@ -147,7 +188,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
-ans4=raw_input("Plot 3D plot of SF? (yes) or (no:)")
+ans4=raw_input("Plot 3D plot of SF? (yes) or (no):")
 
 if(ans4=="yes"):
     fig1=plt.figure()
@@ -166,7 +207,7 @@ if(ans4=="yes"):
     plt.show()
 
 
-ans5=raw_input("Plot 3D plot of NSF? (yes) or (no:)")
+ans5=raw_input("Plot 3D plot of NSF? (yes) or (no):")
 if(ans5=="yes"):
     fig2=plt.figure()
     ax = fig2.gca(projection='3d')
@@ -182,22 +223,22 @@ if(ans5=="yes"):
 
     fig2.colorbar(surf, shrink=0.5, aspect=5)
     plt.show()
-
-N=len(q)
-number=5
-
-for i in range(number):
-    pos=str(number)+"1"+str(i+1)
-    plt.subplot(pos)
-    plt.plot(q,Euler_sums_NSF[-1][:,(5+i*10)%N],"k-",label="hh="+str(q[(5+i*10)%N]))
-
-    plt.legend()
-    plt.ylim(np.amin(Euler_sums_NSF[-1]),np.amax(Euler_sums_NSF[-1]))
-
-
-plt.show()
-
-#index=np.where()
+#
+#N=len(q)
+#number=5
+#
+#for i in range(number):
+#    pos=str(number)+"1"+str(i+1)
+#    plt.subplot(pos)
+#    plt.plot(q,Euler_sums_NSF[-1][:,(5+i*10)%N],"k-",label="hh="+str(q[(5+i*10)%N]))
+#
+#    plt.legend()
+#    plt.ylim(np.amin(Euler_sums_NSF[-1]),np.amax(Euler_sums_NSF[-1]))
+#
+#
+#plt.show()
+#
+##index=np.where()
 
 
 
