@@ -45,7 +45,7 @@ def gen_hamiltonian(basis,N,Jzz,Jpm,B_field,NN):
 
     J_zz=[[Jzz,i,j] for (i,j) in NN]
     J_pm=[[-Jpm,i,j] for (i,j) in NN]
-    z_field=[[(U_B * gz)*np.matmul(B_field,Z_DIR[ST[i]]),i] for i in range(N)] #Carefull with the directions!!! it should be Z\dotB
+    z_field=[[-(U_B * gz)*np.matmul(B_field,Z_DIR[ST[i]]),i] for i in range(N)] #Carefull with the directions!!! it should be Z\dotB
 
     #Time independe parameters of the Hamiltonian
     static=[["zz",J_zz],["z",z_field],["+-",J_pm],["-+",J_pm]]
@@ -54,7 +54,7 @@ def gen_hamiltonian(basis,N,Jzz,Jpm,B_field,NN):
     dynamic=[]
 
 
-    H=hamiltonian(static,dynamic,dtype=np.float64,basis=basis,check_herm=False, check_symm=False)
+    H=hamiltonian(static,dynamic,basis=basis,check_herm=False, check_symm=False)#dtype=np.float64,
     return H
 
 def get_thermal_average(eigenvals,eigenvect,linear_op,Temp):
@@ -74,6 +74,9 @@ def get_thermal_average(eigenvals,eigenvect,linear_op,Temp):
 #Defining cluster to be use
 
 for c in range(len(cluster)-4):
+    
+    q_time = time()
+    
     print("Initialicing calculus for cluster type ", cluster[c])
     
     N=N_DICT[cluster[c]] #Size of the system
@@ -104,13 +107,16 @@ for c in range(len(cluster)-4):
     #Finding all the correlation coefficients
     
     for s1,s2 in it.product(range(N),range(N)):
-
+        
+       
         #Generating the coefficient of the quantum operator
-        coefficient=[[(U_B*KB)**2,s1,s2]]#   [[value,site1,site2 ]]
+        coefficient=[[(U_B*gz)**2,s1,s2]] #   [[value,site1,site2 ]]
         linear_op=quantum_LinearOperator([['zz',coefficient]], basis=basis, check_herm=False, check_symm=False)
         
         #Average value of the operator
         Op_T_average=get_thermal_average(eigenvals,eigenvect,linear_op,T)
+        
+       
         
 
     #At this point the prefactor due to the direction and the exponential factor must be multiply by the average factor previously found to have the total scattering function, the different type of cluster must be included aswell
@@ -119,23 +125,21 @@ for c in range(len(cluster)-4):
             
             #Relative position vector and Z directions for both spin in the correlation factor
         
-            r_ij=np.matmul(SYM[sym],Positions[s1]-Positions[s2])
+            r_ij=np.dot(SYM[sym],Positions[s1]-Positions[s2])
             
-            z_1=np.matmul(SYM[sym],Z_DIR[ST[s1]])
-            z_2=np.matmul(SYM[sym],Z_DIR[ST[s2]])
+            z_1=np.dot(SYM[sym],Z_DIR[ST[s1]])
+            z_2=np.dot(SYM[sym],Z_DIR[ST[s2]])
             
             dir_s1=np.cross(z_1, Z_scatt)
             dir_s2=np.cross(z_2, Z_scatt)
 
             Projection_factor_NSF=np.dot(z_1,Z_scatt)*np.dot(z_2,Z_scatt)
            
-
-
             for h,l in it.product(range(q.size),range(q.size)):#
     
                 q_vector=np.array([q[h],q[h],q[l]])
                 
-                X_scatt=np.array([q[h],q[h],q[l]])/np.sqrt(2.*q[h]**2+q[l]**2)
+                X_scatt=np.array([q[h],q[h],q[l]])/np.sqrt(np.dot(q_vector,q_vector)) #np.sqrt(2.*q[h]**2+q[l]**2)
                 
                 Projection_factor_SF=np.dot(dir_s1,X_scatt)*np.dot(dir_s2,X_scatt)
 
@@ -143,7 +147,8 @@ for c in range(len(cluster)-4):
 
                 c_SF_intensity[c][l,h]+=Op_T_average.real*np.cos(q_vector.dot(r_ij))*Projection_factor_SF/48.
 
-
+    print("time used for cluster"+ str(c)+ "=", timedelta(seconds=time()-q_time))
+    print("")
 
 
 
