@@ -22,7 +22,7 @@ B_field=[0.0,0.0,0.0] # field
 T=0.1/KB # Kelvin
 gz=4.32 #Lande factor
 
-q=2*np.pi*np.arange(-4.01, 4.01, 0.05)#np.arange(-2.501, 2.501, 0.1)
+q=2*np.pi*np.arange(-4.01, 4.01, 0.025)#np.arange(-2.501, 2.501, 0.1)
 
 cluster=['0','1','2','3','4Y','4I','4L']
 
@@ -57,18 +57,40 @@ def gen_hamiltonian(basis,N,Jzz,Jpm,B_field,NN):
     H=hamiltonian(static,dynamic,dtype=np.float64,basis=basis,check_herm=False, check_symm=False)
     return H
 
-def get_thermal_average(eigenvals,eigenvect,linear_op,Temp,contributing):
+def get_thermal_average(eigenvals,eigenvect,linear_op,Temp,aiao_OP,s1,s2):
 
     average=0 #Average of the linear operator
     Z=0 #Partition function
     eigenvals-=np.ones(len(eigenvals))*min(eigenvals)
+    contributing=0
+    sites=[]
     
+    for i in range(N):
+        sites.append(i)
+    sites=np.array(sites)
     for val,vect in zip(eigenvals,eigenvect.T):
+        use=1
         
-        if(val!=np.pi):
+        
+        for operator in aiao_OP: #Get states in the all in all out state
+                
+            coefficient=[[operator[i],i] for i in range(N)]
+
+            linear_op=quantum_LinearOperator([['z',coefficient]], basis=basis, check_herm=False, check_symm=False)
+                
+            val=np.dot(vect.conj(),linear_op.matvec(vect))
+                
+            if(abs(val)==4):
+                use=0
+                break
+
+        
+        if(use==1):
+            contributing+=1
             average+=np.dot(vect.conj(),linear_op.matvec(vect))*np.exp(-val/(KB*Temp))
             Z+=np.exp(-val/(KB*Temp))
-    
+    if(s1==0 and s2==0):
+        print(str(contributing)+" out of " + str(len(eigenvals)) )
     return average/Z
 
 
@@ -91,37 +113,14 @@ def find_aiao(c,N,basis): #Find the configurations that have an all-in or an all
             
             for index in range(4):
                 sites_of_z[index+3*t]=1
-            
 #            if(t>0):
 #                sites_of_z[3*t]=-1
             OPERATORS.append(sites_of_z)
     
         indices=[]
-        
-        for index in range(L): #Produce the state to verify which is in the aiao state
-            
-            state=np.zeros(L).T
-            
-            state[index]=1
-            
-            for operator in OPERATORS: #Get states in the all in all out state
-                
-                coefficient=[[operator[i],i] for i in range(N)]
-                
-                #                if(index==0):
-                #                    print(coefficient)
-                #
-                linear_op=quantum_LinearOperator([['z',coefficient]], basis=basis, check_herm=False, check_symm=False)
-                
-                val=np.dot(state.conj(),linear_op.matvec(state))
-                
-                if(val==4 or val==-4):
-                    indices.append(index)
-        print("Positions found")
-#        
-#        print(basis)
-#        print(indices)
-        return np.array(indices)
+        print(OPERATORS)
+       
+        return np.array(OPERATORS)
     return []
 
 
@@ -131,7 +130,8 @@ def find_aiao(c,N,basis): #Find the configurations that have an all-in or an all
 
 #Defining cluster to be use
 
-for c in range(len(cluster)-4):
+for c in range(len(cluster)):
+    time_c=time()
     print("")
     print("Initialicing calculus for cluster type ", cluster[c])
     
@@ -156,7 +156,7 @@ for c in range(len(cluster)-4):
 
     basis=spin_basis_1d(L=N,S='1/2',pauli=True)#Basis of the system
     
-    aiao_indices=find_aiao(c,N,basis)
+    aiao_OP=find_aiao(c,N,basis)
     
 
     H=gen_hamiltonian(basis,N,Jzz,Jpm,B_field,NN)
@@ -165,22 +165,7 @@ for c in range(len(cluster)-4):
     eigenvals,eigenvect=H.eigh()
 #    print(eigenvals)
 
-    contributing=np.ones(len(eigenvect)) #Check contributions of states that are not all-in-all-out states
-   
     
-    for i in range(len(eigenvect)): #Checking the ith eigen vector
-        for j in range(len(aiao_indices)): #Checking the jth position corresponding to an all-in-all-out state
-            
-            if(abs(eigenvect[i][aiao_indices[j]])==1):
-#                print(eigenvect[i])
-#                print(aiao_indices[j])
-                contributing[i]=0 #Setting to 0 the contribution of that eigen vector
-                eigenvals[i]=np.pi #Trick, mark down the corresponding eigenvals setting them as pi
-                break
-
-    print("Contributing eigen vectors")
-
-    print(str(int(sum(contributing)))+" out of " +str(len(contributing)))
 
     for i in eigenvect:
         if(list(i).count(1)+list(i).count(-1)!=1):
@@ -195,7 +180,7 @@ for c in range(len(cluster)-4):
         
         #Average value of the operator
         #Op_T_average=get_thermal_average(eigenvals,eigenvect,linear_op,T) Old line
-        Op_T_average=get_thermal_average(eigenvals,eigenvect,linear_op,T,contributing)
+        Op_T_average=get_thermal_average(eigenvals,eigenvect,linear_op,T,aiao_OP,s1,s2)
         
 
     #At this point the prefactor due to the direction and the exponential factor must be multiply by the average factor previously found to have the total scattering function, the different type of cluster must be included aswell
@@ -229,7 +214,7 @@ for c in range(len(cluster)-4):
                 c_SF_intensity[c][l,h]+=Op_T_average.real*np.cos(q_vector.dot(r_ij))*Projection_factor_SF/48.
 
 
-
+    print("Time used for cluster "+ str(c) +"="+str(time()-time_c))
 
 
 np.savez_compressed("NLC1_no_aiao_data_T"+str(round(T,2))+"_J"+str(Jzz)+"_Jpm"+str(Jpm),SF=c_SF_intensity, NSF=c_NSF_intensity)
