@@ -45,7 +45,7 @@ def gen_hamiltonian(basis,N,Jzz,Jpm,B_field,NN):
 
     J_zz=[[Jzz,i,j] for (i,j) in NN]
     J_pm=[[-Jpm,i,j] for (i,j) in NN]
-    z_field=[[-(U_B * gz)*np.matmul(B_field,Z_DIR[ST[i]]),i] for i in range(N)] #Carefull with the directions!!! it should be Z\dotB
+    z_field=[[-(U_B * gz)*np.matmul(B_field,Z_DIR[ST[i]]),i] for i in range(N)] #Carefull with the directions!!! it should be Z\cdotB
 
     #Time independe parameters of the Hamiltonian
     static=[["zz",J_zz],["z",z_field],["+-",J_pm],["-+",J_pm]]
