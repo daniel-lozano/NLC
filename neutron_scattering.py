@@ -16,11 +16,22 @@ from constants import *
 print("----%----------%----------%------STARTING CALCULUS----%----------%----------%----------%------")
 
 
-Jzz=1. #First neighbors interaction constant
-Jpm=0.0
+Jzz=0.17 #First neighbors interaction constant
+Jpm=0.05
+Jppmm=0.05
+Jzpm=-0.14
 B_field=[0.0,0.0,0.0] # field
 T=0.1/KB # Kelvin
 gz=4.32 #Lande factor
+
+Eta=[[0,-1,np.exp(np.pi*1j/3),np.exp(-np.pi*1j/3)],
+     [-1,0,np.exp(-np.pi*1j/3),np.exp(np.pi*1j/3)],
+     [np.exp(np.pi*1j/3),np.exp(-np.pi*1j/3),0,-1],
+     [np.exp(-np.pi*1j/3),np.exp(-np.pi*1j/3),-1,0]]
+
+Gamma=-np.conj(Eta)
+
+
 
 q=2*np.pi*np.arange(-4.01, 4.01, 0.1)#0.025
 
@@ -45,10 +56,25 @@ def gen_hamiltonian(basis,N,Jzz,Jpm,B_field,NN):
 
     J_zz=[[Jzz,i,j] for (i,j) in NN]
     J_pm=[[-Jpm,i,j] for (i,j) in NN]
-    z_field=[[-(U_B * gz)*np.matmul(B_field,Z_DIR[ST[i]]),i] for i in range(N)] #Carefull with the directions!!! it should be Z\cdotB
+    
+    #    Double exitation terms
+    J_pp=[[Jppmm*Gamma[ST[i],ST[j]],i,j] for (i,j) in NN]
+    J_mm=[[Jppmm*np.conj(Gamma[ST[i],ST[j]]),i,j] for (i,j) in NN]
+    
+    #    Exitation plus magnetization term
+    
+    J_zpj=[[Jzpm*Eta[ST[i]][ST[j]],i,j] for (i,j) in NN]
+    J_zpi=[[Jzpm*Eta[ST[j]][ST[i]],j,i] for (i,j) in NN]
+    
+    J_zmj=[[Jzpm*np.conj(Eta[ST[i]][ST[j]]),i,j] for (i,j) in NN]
+    J_zmi=[[Jzpm*np.conj(Eta[ST[j]][ST[i]]),j,i] for (i,j) in NN]
+
+    
+    
+    z_field=[[-(U_B * gz)*np.matmul(B_field,Z_DIR[ST[i]]),i] for i in range(N)] #Carefull with the directions!!! it should be Z\dotB
 
     #Time independe parameters of the Hamiltonian
-    static=[["zz",J_zz],["z",z_field],["+-",J_pm],["-+",J_pm]]
+    static=[["zz",J_zz],["z",z_field],["+-",J_pm],["-+",J_pm],["++",J_pp],["--",J_mm],["z+",J_zpj],["z+",J_zpi],["z+",J_zmj],["z+",J_zmi]]
     
     #Time dependent parameters of the Hamiltonian
     dynamic=[]
@@ -74,7 +100,7 @@ def get_thermal_average(eigenvals,eigenvect,linear_op,Temp):
 #Defining cluster to be use
 
 for c in range(len(cluster)-4):
-    
+
     q_time = time()
     
     print("Initialicing calculus for cluster type ", cluster[c])
@@ -101,10 +127,11 @@ for c in range(len(cluster)-4):
     
     #Obtaining the eigen values and eigen vectors of the Hamiltonian
     eigenvals,eigenvect=H.eigh()
-    for i in eigenvect:
-        if(list(i).count(1)+list(i).count(-1)!=1):
-            print("There's a non classical contribution!!!")
-    #Finding all the correlation coefficients
+    if(Jpm==0):
+        for i in eigenvect:
+            if(list(i).count(1)+list(i).count(-1)!=1):
+                print("There's a non classical contribution!!!")
+        #Finding all the correlation coefficients
     
     for s1,s2 in it.product(range(N),range(N)):
         
