@@ -9,7 +9,7 @@ OUTPUT: The function returns an array with the expression for each contribution 
 
 def cluster_contributions(weights ,order):
 #weights=[W0,W1,W2,W3,W4Y,W4I,W4L,....]
-    print "order=", order
+    print("order=", order)
     if(order+1>5):
         raise ValueError("The order entered is to high! max order=4")
     contribution=np.zeros((order+1,weights.shape[1],weights.shape[1]))
@@ -93,7 +93,7 @@ def product(array_like,ndarray_like):
 def euler_sum(series_terms,start,stop):
     
     #Adding first terms before starting the Euler transformation
-    print type(series_terms)
+    print(type(series_terms))
     
     first_terms=np.zeros((series_terms.shape[1],series_terms.shape[2]))
     
@@ -106,7 +106,7 @@ def euler_sum(series_terms,start,stop):
 
     for i in range(stop-start+1):
         
-        print pascal_triangle(i,len(terms_to_add))
+        print(pascal_triangle(i,len(terms_to_add)))
         
         sum_tot[i]=first_terms+product(pascal_triangle(i,len(terms_to_add)),terms_to_add)/2.**(i+1)
 
