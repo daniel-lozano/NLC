@@ -1,6 +1,7 @@
 import numpy as np
 
 
+
 def rotation(axis, angle):
     """
         Generates matrix for rotating coordinates in 3D about the given axis.
