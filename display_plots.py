@@ -31,7 +31,7 @@ cluster=['0','1','2','3','4Y','4I','4L']
 #Arrays to store the different scattering results
 c_SF_intensity = np.zeros((len(cluster), q.size, q.size))
 c_NSF_intensity = np.zeros((len(cluster), q.size, q.size))
-print c_NSF_intensity[0][0,0]
+print(c_NSF_intensity[0][0,0])
 
 
 print("First Neighbor interaction constant=",Jzz)
@@ -40,11 +40,11 @@ print("Magnetic field=",B_field)
 name=argv[1]
 SF=np.load(name)['SF']
 NSF=np.load(name)['NSF']
-print SF.shape[0]
+print(SF.shape[0])
 
-ans1=raw_input("Plot cluster constributions? (yes) or (no):")
+ans1=input("Plot cluster constributions? (yes) or (no):")
 
-keyword="viridis"
+keyword="jet"
 
 for i in range(SF.shape[0]):
     
@@ -52,7 +52,7 @@ for i in range(SF.shape[0]):
     c_NSF_intensity=NSF[i]
     Tot=c_SF_intensity+c_NSF_intensity
     
-    print "variation",abs(np.amax(c_NSF_intensity)-np.amin(c_NSF_intensity))
+    print("variation",abs(np.amax(c_NSF_intensity)-np.amin(c_NSF_intensity)))
     
     if(ans1=="yes"):
     
@@ -100,8 +100,8 @@ Euler_sums_NSF=euler_sum(Tot_contributions_NSF,3,4)
 #plt.show()
 #
 
-ans2=raw_input("Plot Bare sums? (yes) or (no):")
-ans3=raw_input("Plot Euler vs Bare sums? (yes) or (no):")
+ans2=input("Plot Bare sums? (yes) or (no):")
+ans3=input("Plot Euler vs Bare sums? (yes) or (no):")
 if (ans2=="yes"):
     
     for i in range(1,Bare_sums_SF.shape[0]):
@@ -109,27 +109,29 @@ if (ans2=="yes"):
         plt.figure(figsize=(12,5))
         plt.subplot(131)
         im2=plt.imshow(Bare_sums_NSF[i],cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)))
-        cbar=plt.colorbar(im2,orientation="horizontal",pad=0.1)
-        cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
+        cbar=plt.colorbar(im2)#,orientation="horizontal",pad=0.1)#
+        #cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Bare sum NSF order= " +str(i))
     
         levels=np.linspace(np.amin(Bare_sums_SF[i]),np.amax(Bare_sums_SF[i]),200)
 
         plt.subplot(132)
         im1=plt.imshow(Bare_sums_SF[i],cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)))
-        cbar=plt.colorbar(im1,orientation="horizontal",pad=0.1)
-        cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
+        cbar=plt.colorbar(im1)#,orientation="horizontal",pad=0.1)
+        #cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Bare sum SF order=" +str(i))
         
         levels=np.linspace(np.amin(Bare_sums_SF[i]+Bare_sums_NSF[i]),np.amax(Bare_sums_SF[i]+Bare_sums_NSF[i]),200)
         
         plt.subplot(133)
         im1=plt.imshow(Bare_sums_SF[i]+Bare_sums_NSF[i],cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)))
-        cbar=plt.colorbar(im1,orientation="horizontal",pad=0.1)
-        cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
+        cbar=plt.colorbar(im1)#,orientation="horizontal",pad=0.1)
+        #cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Bare sum Total order=" +str(i))
-
+        
+        plt.savefig("Bare_sum_"+str(i)+".png")
         plt.show()
+
 
 if (ans3=="yes"):
     for i in range(Euler_sums_SF.shape[0]):
@@ -188,7 +190,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
-ans4=raw_input("Plot 3D plot of SF? (yes) or (no):")
+ans4=input("Plot 3D plot of SF? (yes) or (no):")
 
 if(ans4=="yes"):
     fig1=plt.figure()
@@ -207,7 +209,7 @@ if(ans4=="yes"):
     plt.show()
 
 
-ans5=raw_input("Plot 3D plot of NSF? (yes) or (no):")
+ans5=input("Plot 3D plot of NSF? (yes) or (no):")
 if(ans5=="yes"):
     fig2=plt.figure()
     ax = fig2.gca(projection='3d')
@@ -223,7 +225,7 @@ if(ans5=="yes"):
 
     fig2.colorbar(surf, shrink=0.5, aspect=5)
     plt.show()
-#
+
 #N=len(q)
 #number=5
 #
@@ -239,7 +241,7 @@ if(ans5=="yes"):
 #plt.show()
 #
 ##index=np.where()
-
+#
 
 
 
