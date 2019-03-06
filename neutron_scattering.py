@@ -16,12 +16,12 @@ from constants import *
 print("----%----------%----------%------STARTING CALCULUS----%----------%----------%----------%------")
 
 
-Jzz=0.17 #First neighbors interaction constant
-Jpm=0.05
-Jppmm=0.05
-Jzpm=-0.14
+Jzz=1#0.17 #First neighbors interaction constant
+Jpm=0#0.05
+Jppmm=0#0.05
+Jzpm=0#-0.14
 B_field=[0.0,0.0,0.0] # field
-T=0.1/KB # Kelvin
+T=10.0/KB # Kelvin
 gz=4.32 #Lande factor
 
 Eta=[[0,-1,np.exp(np.pi*1j/3),np.exp(-np.pi*1j/3)],
@@ -33,7 +33,7 @@ Gamma=-np.conj(Eta)
 
 
 
-q=2*np.pi*np.arange(-4.01, 4.01, 0.1)#0.025
+q=2*np.pi*np.arange(-2.501, 2.501, 0.1)#0.025
 
 cluster=['0','1','2','3','4Y','4I','4L']
 
@@ -74,7 +74,7 @@ def gen_hamiltonian(basis,N,Jzz,Jpm,B_field,NN):
     z_field=[[-(U_B * gz)*np.matmul(B_field,Z_DIR[ST[i]]),i] for i in range(N)] #Carefull with the directions!!! it should be Z\dotB
 
     #Time independe parameters of the Hamiltonian
-    static=[["zz",J_zz],["z",z_field],["+-",J_pm],["-+",J_pm],["++",J_pp],["--",J_mm],["z+",J_zpj],["z+",J_zpi],["z+",J_zmj],["z+",J_zmi]]
+    static=[["zz",J_zz],["z",z_field],["+-",J_pm],["-+",J_pm],["++",J_pp],["--",J_mm],["z+",J_zpj],["z+",J_zpi],["z-",J_zmj],["z-",J_zmi]]
     
     #Time dependent parameters of the Hamiltonian
     dynamic=[]
@@ -99,7 +99,7 @@ def get_thermal_average(eigenvals,eigenvect,linear_op,Temp):
 
 #Defining cluster to be use
 
-for c in range(len(cluster)-4):
+for c in range(len(cluster)):
 
     q_time = time()
     
@@ -121,8 +121,8 @@ for c in range(len(cluster)-4):
     Z_scatt=np.array([1, -1, 0]) / np.sqrt(2) # Scattering Polarization direction
 
     basis=spin_basis_1d(L=N,S='1/2',pauli=True)#Basis of the system
-    print("Basis of the system")
-    print(basis)
+#    print("Basis of the system")
+#    print(basis)
     H=gen_hamiltonian(basis,N,Jzz,Jpm,B_field,NN)
     
     #Obtaining the eigen values and eigen vectors of the Hamiltonian
