@@ -16,12 +16,13 @@ from constants import *
 print("----%----------%----------%------STARTING CALCULUS----%----------%----------%----------%------")
 
 
-Jzz=1#0.17 #First neighbors interaction constant
-Jpm=0#0.05
-Jppmm=0#0.05
-Jzpm=0#-0.14
+Jzz=0.17 #First neighbors interaction constant
+Jpm=0.05
+Jppmm=0.05
+Jzpm=-0.14
 B_field=[0.0,0.0,0.0] # field
-T=10.0/KB # Kelvin
+Tempe=1.4 #Kelvin
+T= Tempe # Kelvin10.0/KB
 gz=4.32 #Lande factor
 
 Eta=[[0,-1,np.exp(np.pi*1j/3),np.exp(-np.pi*1j/3)],
