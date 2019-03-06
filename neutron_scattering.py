@@ -34,8 +34,8 @@ Gamma=-np.conj(Eta)
 
 
 q=2*np.pi*np.arange(-2.501, 2.501, 0.1)#0.025
-ql=2*np.pi*np.linspace(0.01, 5.01, 100)
-qh=2*np.pi*np.linspace(0.01, 2.501, 100)
+ql=2*np.pi*np.linspace(0.01, 5.01, 10)
+qh=2*np.pi*np.linspace(0.01, 2.501, 10)
 cluster=['0','1','2','3','4Y','4I','4L']
 
 #Arrays to store the different scattering results
@@ -180,7 +180,7 @@ for c in range(len(cluster)):
 
 
 
-np.savez_compressed("data_T"+str(round(T,2))+"_J"+str(Jzz)+"_Jpm"+str(Jpm),SF=c_SF_intensity, NSF=c_NSF_intensity)
+np.savez_compressed("data_T"+str(round(T,2))+"_J"+str(Jzz)+"_Jpm"+str(Jpm),SF=c_SF_intensity, NSF=c_NSF_intensity, QH=qh, QL=ql)
 
 
 
