@@ -34,7 +34,8 @@ Gamma=-np.conj(Eta)
 
 
 q=2*np.pi*np.arange(-2.501, 2.501, 0.1)#0.025
-
+ql=2*np.pi*np.linspace(0.01, 5.01, 100)
+qh=2*np.pi*np.linspace(0.01, 2.501, 100)
 cluster=['0','1','2','3','4Y','4I','4L']
 
 #Arrays to store the different scattering results
@@ -162,11 +163,11 @@ for c in range(len(cluster)):
 
             Projection_factor_NSF=np.dot(z_1,Z_scatt)*np.dot(z_2,Z_scatt)
            
-            for h,l in it.product(range(q.size),range(q.size)):#
+            for h,l in it.product(range(qh.size),range(ql.size)):#
     
-                q_vector=np.array([q[h],q[h],q[l]])
+                q_vector=np.array([qh[h],qh[h],ql[l]])
                 
-                X_scatt=np.array([q[h],q[h],q[l]])/np.sqrt(np.dot(q_vector,q_vector)) #np.sqrt(2.*q[h]**2+q[l]**2)
+                X_scatt=np.array([qh[h],qh[h],ql[l]])/np.sqrt(np.dot(q_vector,q_vector)) #np.sqrt(2.*q[h]**2+q[l]**2)
                 
                 Projection_factor_SF=np.dot(dir_s1,X_scatt)*np.dot(dir_s2,X_scatt)
 
