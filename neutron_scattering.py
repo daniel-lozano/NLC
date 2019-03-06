@@ -32,15 +32,15 @@ Eta=[[0,-1,np.exp(np.pi*1j/3),np.exp(-np.pi*1j/3)],
 Gamma=-np.conj(Eta)
 
 
-
+size=int(input("Enter number of points for the scattering structure factor (int): "))
 q=2*np.pi*np.arange(-2.501, 2.501, 0.1)#0.025
-ql=2*np.pi*np.linspace(0.01, 5.01, 10)
-qh=2*np.pi*np.linspace(0.01, 2.501, 10)
+ql=2*np.pi*np.linspace(0.01, 5.01, size)
+qh=2*np.pi*np.linspace(0.01, 2.501, size)
 cluster=['0','1','2','3','4Y','4I','4L']
 
 #Arrays to store the different scattering results
-c_SF_intensity = np.zeros((len(cluster), q.size, q.size))
-c_NSF_intensity = np.zeros((len(cluster), q.size, q.size))
+c_SF_intensity = np.zeros((len(cluster), ql.size, qh.size))
+c_NSF_intensity = np.zeros((len(cluster), ql.size, qh.size))
 print(c_NSF_intensity[0][0,0])
 
 

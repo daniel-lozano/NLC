@@ -22,29 +22,39 @@ B_field=[0.0,0.0,0.0] # field
 T=0.1/KB # Kelvin
 gz=4.32 #Lande factor
 
-q=2*np.pi*np.arange(-4.01, 4.01, 0.1)#np.arange(-2.501, 2.501, 0.1)#
 
-hh,l=np.meshgrid(q,q)
 
 cluster=['0','1','2','3','4Y','4I','4L']
 
 #Arrays to store the different scattering results
-c_SF_intensity = np.zeros((len(cluster), q.size, q.size))
-c_NSF_intensity = np.zeros((len(cluster), q.size, q.size))
-print(c_NSF_intensity[0][0,0])
+
 
 
 print("First Neighbor interaction constant=",Jzz)
 print("First Neighbor exchange=",Jpm)
 print("Magnetic field=",B_field)
+
 name=argv[1]
 SF=np.load(name)['SF']
 NSF=np.load(name)['NSF']
-print(SF.shape[0])
+
+print(np.shape(SF[0]))
+
+
+q=2*np.pi*np.linspace(-4.01, 4.01,np.shape(SF[0])[0] )#np.arange(-2.501, 2.501, 0.1)#
+ql=np.load(name)['QL']
+qh=np.load(name)['QH']
+
+
+hh,l=np.meshgrid(qh,ql)
+c_SF_intensity = np.zeros((len(cluster),len(ql), len(qh)))
+c_NSF_intensity = np.zeros((len(cluster),len(ql), len(qh)))
+print(c_NSF_intensity[0][0,0])
+
 
 ans1=input("Plot cluster constributions? (yes) or (no):")
 
-keyword="jet"
+keyword="magma"
 
 for i in range(SF.shape[0]):
     
@@ -70,7 +80,7 @@ for i in range(SF.shape[0]):
         plt.title("SF,Cluster type="+str(i))
         
         plt.subplot(133)
-        im2=plt.imshow(Tot,cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)))
+        im2=plt.imshow(Tot,cmap=keyword,extent=(min(qh)/(2*np.pi), max(qh)/(2*np.pi), min(ql)/(2*np.pi), max(ql)/(2*np.pi)))
         cbar=plt.colorbar(im2,orientation="horizontal",pad=0.1)
         cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Total,Cluster type="+str(i))
@@ -108,7 +118,7 @@ if (ans2=="yes"):
     
         plt.figure(figsize=(12,5))
         plt.subplot(131)
-        im2=plt.imshow(Bare_sums_NSF[i],cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)))
+        im2=plt.imshow(Bare_sums_NSF[i],cmap=keyword,extent=(min(qh)/(2*np.pi), max(qh)/(2*np.pi), min(ql)/(2*np.pi), max(ql)/(2*np.pi)))
         cbar=plt.colorbar(im2)#,orientation="horizontal",pad=0.1)#
         #cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Bare sum NSF order= " +str(i))
@@ -116,7 +126,7 @@ if (ans2=="yes"):
         levels=np.linspace(np.amin(Bare_sums_SF[i]),np.amax(Bare_sums_SF[i]),200)
 
         plt.subplot(132)
-        im1=plt.imshow(Bare_sums_SF[i],cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)))
+        im1=plt.imshow(Bare_sums_SF[i],cmap=keyword,extent=(min(qh)/(2*np.pi), max(qh)/(2*np.pi), min(ql)/(2*np.pi), max(ql)/(2*np.pi)))
         cbar=plt.colorbar(im1)#,orientation="horizontal",pad=0.1)
         #cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Bare sum SF order=" +str(i))
@@ -124,7 +134,7 @@ if (ans2=="yes"):
         levels=np.linspace(np.amin(Bare_sums_SF[i]+Bare_sums_NSF[i]),np.amax(Bare_sums_SF[i]+Bare_sums_NSF[i]),200)
         
         plt.subplot(133)
-        im1=plt.imshow(Bare_sums_SF[i]+Bare_sums_NSF[i],cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)))
+        im1=plt.imshow(Bare_sums_SF[i]+Bare_sums_NSF[i],cmap=keyword,extent=(min(qh)/(2*np.pi), max(qh)/(2*np.pi), min(ql)/(2*np.pi), max(ql)/(2*np.pi)))
         cbar=plt.colorbar(im1)#,orientation="horizontal",pad=0.1)
         #cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Bare sum Total order=" +str(i))
@@ -146,7 +156,7 @@ if (ans3=="yes"):
         plt.subplot(232)
 #        levels=np.linspace(np.amin(Bare_sums_SF[i-2]),np.amax(Bare_sums_SF[i-2]),200)
 #        im2=plt.contour(hh,l,Bare_sums_SF[i-2],cmap=keyword,levels=levels)
-        im2=plt.imshow(Bare_sums_SF[i-2],cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)))
+        im2=plt.imshow(Bare_sums_SF[i-2],cmap=keyword,extent=(min(qh)/(2*np.pi), max(qh)/(2*np.pi), min(ql)/(2*np.pi), max(ql)/(2*np.pi)))
         cbar=plt.colorbar(im2,orientation="horizontal",pad=0.1)
         cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Bare sum SF order= " +str(i+3))
@@ -154,7 +164,7 @@ if (ans3=="yes"):
         plt.subplot(233)
 #        levels=np.linspace(np.amin(Bare_sums_SF[i-2]+Bare_sums_NSF[i-2]),np.amax(Bare_sums_SF[i-2]+Bare_sums_NSF[i-2]),200)
 #        im2=plt.contour(hh,l,Bare_sums_SF[i-2]+Bare_sums_NSF[i-2],cmap=keyword,levels=levels)
-        im3=plt.imshow(Bare_sums_SF[i-2]+Bare_sums_NSF[i-2],cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)))
+        im3=plt.imshow(Bare_sums_SF[i-2]+Bare_sums_NSF[i-2],cmap=keyword,extent=(min(qh)/(2*np.pi), max(qh)/(2*np.pi), min(ql)/(2*np.pi), max(ql)/(2*np.pi)))
         cbar=plt.colorbar(im3,orientation="horizontal",pad=0.1)
         cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Bare sum total order= " +str(i+3))
@@ -168,7 +178,7 @@ if (ans3=="yes"):
         plt.subplot(235)
 #        levels=np.linspace(np.amin(Euler_sums_SF[i]),np.amax(Euler_sums_SF[i]),200)
 #        im2=plt.contour(hh,l,Euler_sums_SF[i],cmap=keyword,levels=levels)
-        im2=plt.imshow(Euler_sums_SF[i],cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)) )
+        im2=plt.imshow(Euler_sums_SF[i],cmap=keyword,extent=(min(qh)/(2*np.pi), max(qh)/(2*np.pi), min(ql)/(2*np.pi), max(ql)/(2*np.pi)) )
         cbar=plt.colorbar(im2,orientation="horizontal",pad=0.1)
         cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Euler sum SF order= " +str(i+3))
@@ -176,7 +186,7 @@ if (ans3=="yes"):
         plt.subplot(236)
 #        levels=np.linspace(np.amin(Euler_sums_SF[i]+Euler_sums_NSF[i]),np.amax(Euler_sums_SF[i]+Euler_sums_NSF[i]),200)
 #        im3=plt.contour(hh,l,Euler_sums_SF[i]+Euler_sums_NSF[i],cmap=keyword,levels=levels)
-        im3=plt.imshow(Euler_sums_SF[i]+Euler_sums_NSF[i],cmap=keyword,extent=(min(q)/(2*np.pi), max(q)/(2*np.pi), min(q)/(2*np.pi), max(q)/(2*np.pi)) )
+        im3=plt.imshow(Euler_sums_SF[i]+Euler_sums_NSF[i],cmap=keyword,extent=(min(qh)/(2*np.pi), max(qh)/(2*np.pi), min(ql)/(2*np.pi), max(ql)/(2*np.pi)) )
         cbar=plt.colorbar(im3,orientation="horizontal",pad=0.1)
         cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Euler sum Tot order= " +str(i+3))
