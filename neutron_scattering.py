@@ -35,8 +35,8 @@ Gamma=-np.conj(Eta)
 
 size=int(input("Enter number of points for the scattering structure factor (int): "))
 q=2*np.pi*np.arange(-2.501, 2.501, 0.1)#0.025
-ql=2*np.pi*np.linspace(0.01, 5.01, size)
-qh=2*np.pi*np.linspace(0.01, 2.501, size)
+ql=q#2*np.pi*np.linspace(0.01, 5.01, size)
+qh=q#2*np.pi*np.linspace(0.01, 2.501, size)
 cluster=['0','1','2','3','4Y','4I','4L']
 
 #Arrays to store the different scattering results
@@ -47,6 +47,9 @@ print(c_NSF_intensity[0][0,0])
 
 print("First Neighbor interaction constant=",Jzz)
 print("First Neighbor exchange=",Jpm)
+print("Double excitation=",Jppmm)
+print("Mixed=",Jzpm)
+
 print("Magnetic field=",B_field)
 
 
@@ -101,7 +104,7 @@ def get_thermal_average(eigenvals,eigenvect,linear_op,Temp):
 
 #Defining cluster to be use
 
-for c in range(len(cluster)):
+for c in range(len(cluster)-4):
 
     q_time = time()
     
