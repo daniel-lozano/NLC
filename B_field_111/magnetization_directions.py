@@ -10,7 +10,7 @@ from quspin.operators import hamiltonian, quantum_LinearOperator
 from scipy.stats import cauchy
 
 from constants import *
-from functions import *
+from functions_symmetry import *
 from sums import *
 from visualice import find_symm
 
@@ -19,7 +19,7 @@ print("----%----------%----------%------STARTING CALCULUS----%----------%-------
 
 
 h_max=float(input("Enter max value for the magnetic field="))# Field strength, should be in Teslas
-H_field=np.linspace(0.1,h_max,20)
+H_field=np.linspace(0.1,h_max,10)
 
 ans=input("Plot cluster (y) or (n): ")
 B_direct=np.array([1.0,1.0,1.0])/np.sqrt(3)
@@ -89,14 +89,7 @@ for i in range(len(H_field)):
         ST=ST_DICT[cluster[c]] ### Site types
         NN=NN_PAIRS_DICT[cluster[c]] ### Pairs in the system
         Positions=R_DICT[cluster[c]] ### Positions of the sites in the lattice
-        
-        ### Basis of the system and Hamiltonian of the system ###
-        basis=spin_basis_1d(L=N,S='1/2',pauli=True)
-        H=Hamiltonian(basis,N,Jzz,Jpm,Jppmm,0,B_field,NN,ST)### Constant imported from file
-#        H=Hamiltonian(basis,N,Jzz,Jpm,Jppmm,Jzpm,B_field,NN,ST)### Constant imported from file
-
-        eigenvals,eigenvect=H.eigh()
-        
+    
         ### Getting the projection factors and the coefficients for the quantum operator ###
         
         ### Symmetry used to get other type of cluster ###
@@ -150,43 +143,50 @@ for i in range(len(H_field)):
             
             
             if(c>1):
+                
                 z_per=np.dot(SYM[index_no_sym[sym_to_use]],z_par) ### Another cluster type accesed
                 
-               
                 projection_perp_z.append(np.dot(Z_magne,z_per))
                 projection_perp_x.append(np.dot(X_magne,z_per))
                 projection_perp_y.append(np.dot(Y_magne,z_per))
                 
-                coef_perp_z.append([abs(projection_perp_z[-1]),sp])
-                coef_perp_x.append([abs(projection_perp_x[-1]),sp])
-                coef_perp_y.append([abs(projection_perp_y[-1]),sp])
+                coef_perp_z.append([projection_perp_z[-1],sp])
+                coef_perp_x.append([projection_perp_x[-1],sp])
+                coef_perp_y.append([projection_perp_y[-1],sp])
                 
                 direc_perp[0][sp]=z_per[0]
                 direc_perp[1][sp]=z_per[1]
                 direc_perp[2][sp]=z_per[2]
 
-### Checking is the vector direction is properly transformed
-#                for vec in Z_DIR:
-#                    if(1-np.dot(z_per,vec)<1E-2):
-#                        print("Condition fulfilled")
-#                        print(vec)
-#                        print(z_per)
+        ### Checking is the vector direction is properly transformed
+        #                for vec in Z_DIR:
+        #                    if(1-np.dot(z_per,vec)<1E-2):
+        #                        print("Condition fulfilled")
+        #                        print(vec)
+        #                        print(z_per)
 
 
+        ### Basis of the system and Hamiltonian of the system ###
+        basis=spin_basis_1d(L=N,S='1/2',pauli=True)
+        ### NOTE THAT THE COEFFICIENT FOR THE B FIELD ARE DIFFERENTE NOW! ###
+        H_para=Hamiltonian(basis,N,Jzz,0,0,0,B_field,h,NN,ST,coef_para_z)### Constant imported from file
+#        H_para=Hamiltonian(basis,N,Jzz,Jpm,Jppmm,Jzpm,B_field,h,NN,ST,coef_para_z)### Constant imported from file
+
+        eigenvals,eigenvect=H_para.eigh()
 
         ### Getting the operator for the magnetization ###
         Sz_para=quantum_LinearOperator([['z',coef_para_z]], basis=basis, check_herm=False, check_symm=False)
         Sx_para=quantum_LinearOperator([['x',coef_para_x]], basis=basis, check_herm=False, check_symm=False)
         Sy_para=quantum_LinearOperator([['y',coef_para_y]], basis=basis, check_herm=False, check_symm=False)
 
-        types_of_c.append(str(c))
-
         ### Getting the average of each operator in the cluster ###
         Sz_average_para=thermal_average(eigenvals,eigenvect,Sz_para,T)#
         Sx_average_para=thermal_average(eigenvals,eigenvect,Sx_para,T)
         Sy_average_para=thermal_average(eigenvals,eigenvect,Sy_para,T)
 
-        if(Sz_average_para.imag<1E-15 and Sx_average_para.imag<1E-15 and Sy_average_para.imag<1E-15 ):
+        types_of_c.append(str(c))
+
+        if(Sz_average_para.imag<1E-10 and Sx_average_para.imag<1E-10 and Sy_average_para.imag<1E-10 ):
             magnetization_cluster.append([Sx_average_para.real,Sy_average_para.real,Sz_average_para.real])
         else:
             print("Error due to imaginary values!")
@@ -194,13 +194,20 @@ for i in range(len(H_field)):
 
 
         if(c>1):
+            
+            H_perp=Hamiltonian(basis,N,Jzz,0,0,0,B_field,h,NN,ST,coef_perp_z)### Constant imported from file
+#            H=Hamiltonian(basis,N,Jzz,Jzz,Jpm,Jppmm,B_field,h,NN,ST,coef_perp_z)
+            eigenvals_perp,eigenvect_perp=H_perp.eigh()
+            
             Sz_perp=quantum_LinearOperator([['z',coef_perp_z]], basis=basis, check_herm=False, check_symm=False)
             Sx_perp=quantum_LinearOperator([['x',coef_perp_x]], basis=basis, check_herm=False, check_symm=False)
             Sy_perp=quantum_LinearOperator([['y',coef_perp_y]], basis=basis, check_herm=False, check_symm=False)
+            
+            Sz_average_perp=thermal_average(eigenvals_perp,eigenvect_perp,Sz_perp,T)
+            Sx_average_perp=thermal_average(eigenvals_perp,eigenvect_perp,Sx_perp,T)
+            Sy_average_perp=thermal_average(eigenvals_perp,eigenvect_perp,Sy_perp,T)
+            
             types_of_c.append(str(c)+"p")
-            Sz_average_perp=thermal_average(eigenvals,eigenvect,Sz_perp,T)
-            Sx_average_perp=thermal_average(eigenvals,eigenvect,Sx_perp,T)
-            Sy_average_perp=thermal_average(eigenvals,eigenvect,Sy_perp,T)
             
             if(Sz_average_perp.imag<1E-15 and Sx_average_perp.imag<1E-15 and Sy_average_perp.imag<1E-15):
                 magnetization_cluster.append([Sx_average_perp.real,Sy_average_perp.real,Sz_average_perp.real])
@@ -234,7 +241,7 @@ for i in range(len(H_field)):
             plt.show()
         if(i==0):
             print(types_of_c)
-
+                
     magnetization_cluster=np.array(magnetization_cluster)
 
     val_x=magnetization_cluster[:,0]
@@ -252,6 +259,7 @@ for i in range(len(H_field)):
         Weights[w,0]=np.dot(factors,val_x)
         Weights[w,1]=np.dot(factors,val_y)
         Weights[w,2]=np.dot(factors,val_z)
+    
 #        print("Factors",factors)
 #        print("\ncluster type "+ t)
 #        print(np.dot(factors,val_x))
@@ -262,9 +270,11 @@ for i in range(len(H_field)):
 #    print(Weights[:,2])
 #    print(Weights.T@L_multiplicity)
 
+
     Mx[i]=(Weights.T@L_multiplicity)[0]
     My[i]=(Weights.T@L_multiplicity)[1]
     Mz[i]=(Weights.T@L_multiplicity)[2]
+
 
 print("Mx=",Mx)
 print("My=",My)
