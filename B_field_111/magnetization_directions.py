@@ -19,7 +19,8 @@ print("----%----------%----------%------STARTING CALCULUS----%----------%-------
 
 
 h_max=float(input("Enter max value for the magnetic field="))# Field strength, should be in Teslas
-H_field=np.linspace(0.1,h_max,10)
+H_field=np.linspace(h_max*0.9,h_max,20)
+dh=abs(H_field[1]-H_field[0])
 
 ans=input("Plot cluster (y) or (n): ")
 B_direct=np.array([1.0,1.0,1.0])/np.sqrt(3)
@@ -67,6 +68,7 @@ index_sym,index_no_sym=find_symm(B_direct,SYM)
 Mx=np.zeros(len(H_field))
 My=np.zeros(len(H_field))
 Mz=np.zeros(len(H_field))
+Energy_h=np.zeros(len(H_field))
 
 for i in range(len(H_field)):
     
@@ -82,6 +84,8 @@ for i in range(len(H_field)):
     types_of_c=[]
 
     magnetization_cluster=[]
+    Energy_cluster=[]
+
 
     for c in range(len(cluster)):
         
@@ -169,7 +173,7 @@ for i in range(len(H_field)):
         ### Basis of the system and Hamiltonian of the system ###
         basis=spin_basis_1d(L=N,S='1/2',pauli=True)
         ### NOTE THAT THE COEFFICIENT FOR THE B FIELD ARE DIFFERENTE NOW! ###
-        H_para=Hamiltonian(basis,N,Jzz,0,0,0,B_field,h,NN,ST,coef_para_z)### Constant imported from file
+        H_para=Hamiltonian(basis,N,Jzz,Jpm,0,0,B_field,h,NN,ST,coef_para_z)### Constant imported from file
 #        H_para=Hamiltonian(basis,N,Jzz,Jpm,Jppmm,Jzpm,B_field,h,NN,ST,coef_para_z)### Constant imported from file
 
         eigenvals,eigenvect=H_para.eigh()
@@ -183,6 +187,10 @@ for i in range(len(H_field)):
         Sz_average_para=thermal_average(eigenvals,eigenvect,Sz_para,T)#
         Sx_average_para=thermal_average(eigenvals,eigenvect,Sx_para,T)
         Sy_average_para=thermal_average(eigenvals,eigenvect,Sy_para,T)
+
+        E_para=average_energy(eigenvals,eigenvect,T)
+        Energy_cluster.append(E_para)
+
 
         types_of_c.append(str(c))
 
@@ -206,6 +214,10 @@ for i in range(len(H_field)):
             Sz_average_perp=thermal_average(eigenvals_perp,eigenvect_perp,Sz_perp,T)
             Sx_average_perp=thermal_average(eigenvals_perp,eigenvect_perp,Sx_perp,T)
             Sy_average_perp=thermal_average(eigenvals_perp,eigenvect_perp,Sy_perp,T)
+            
+            E_perp=average_energy(eigenvals_perp,eigenvect_perp,T)
+            Energy_cluster.append(E_perp)
+
             
             types_of_c.append(str(c)+"p")
             
@@ -249,6 +261,7 @@ for i in range(len(H_field)):
     val_z=magnetization_cluster[:,2]
     
     Weights=np.zeros((len(cluster_field),3))
+    Weights_E=np.zeros(len(cluster_field))
     
 #    print(val_z)
     for w in range(len(cluster_field)):
@@ -259,6 +272,8 @@ for i in range(len(H_field)):
         Weights[w,0]=np.dot(factors,val_x)
         Weights[w,1]=np.dot(factors,val_y)
         Weights[w,2]=np.dot(factors,val_z)
+        
+        Weights_E[w]=np.dot(factors,Energy_cluster)
     
 #        print("Factors",factors)
 #        print("\ncluster type "+ t)
@@ -275,14 +290,23 @@ for i in range(len(H_field)):
     My[i]=(Weights.T@L_multiplicity)[1]
     Mz[i]=(Weights.T@L_multiplicity)[2]
 
+    Energy_h[i]=np.dot(Weights_E,L_multiplicity)
+
 
 print("Mx=",Mx)
 print("My=",My)
 print("Mz=",Mz)
 
+plt.subplot(211)
+plt.plot(H_field,Energy_h,label="Energy")
+plt.plot(H_field[1:], -(Energy_h[1:]-Energy_h[:len(H_field)-1])/dh, label="Derivative")
+plt.ylabel("Energy")
+plt.xlabel("H_field")
+plt.legend()
 
-plt.plot(H_field, Mx,label="Mx")
-plt.plot(H_field, My,label="My")
+plt.subplot(212)
+#plt.plot(H_field, Mx,label="Mx")
+#plt.plot(H_field, My,label="My")
 plt.plot(H_field, Mz,label="Mz")
 plt.ylabel("Magnetization")
 plt.xlabel("H_field")
