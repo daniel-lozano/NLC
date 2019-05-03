@@ -45,6 +45,29 @@ def rotation(axis, angle):
 #                    [0, 2, 2], [1, 3, 2], [1, 2, 3], [0, 3, 3]  # pyrochlore 3 (sites 12-15)
 #                    ]) / 4  # displacement vectors for all 16 sites in the conventional unit cell
 
+### Multiplicity for B in 111 direction ###
+L_B_DIR={'0': 1.,
+       '1': 1./2,
+       '2': 1./7,
+       '2p': 6./7,
+       '3':6./5,
+       '3p':9./5,
+       '4Y':2,
+       '4I':3,
+       '4L':6
+}
+
+###  Multiplicity of original system ###
+L_DIR={'0': 1.,
+    '1': 1./2,
+    '2': 2,
+    '3': 3,
+    '4Y':2,
+    '4I':3,
+    '4L':6
+}
+
+
 # local z axes for the 4 site types of pyrochlore lattice
 Z_DIR = np.array([[1., 1., 1.], [-1., -1., 1.], [-1., 1., -1.], [1., -1., -1.]]) / np.sqrt(3)
 
@@ -53,15 +76,21 @@ Z_DIR = np.array([[1., 1., 1.], [-1., -1., 1.], [-1., 1., -1.], [1., -1., -1.]])
 N_DICT = {'0': 1, '1': 4, '2': 7, '3': 10, '4Y': 13, '4I': 13, '4L': 13}
 
 # site types for each cluster type
+# P refers to the perpendicular cluster to direction 111
 ST_DICT = {'0': [0],
     '1': [0, 1, 2, 3],
     '2': [0, 1, 2, 3, 3, 0, 1],
     '3': [0, 1, 2, 3, 3, 0, 1, 1, 2, 3],
     '4Y': [0, 1, 2, 3, 3, 0, 1, 1, 2, 3, 2, 3, 0],
     '4I': [0, 1, 2, 3, 3, 0, 1, 1, 2, 3, 3, 0, 1],
-    '4L': [0, 1, 2, 3, 3, 0, 1, 1, 2, 3, 0, 1, 2]
+    '4L': [0, 1, 2, 3, 3, 0, 1, 1, 2, 3, 0, 1, 2],
+    
+    ### Perperndicular to 111 direction ###
+    '2p':[1, 2, 0, 3, 3, 1, 2],
+    '3p':[3, 0, 2, 1, 1, 3, 0, 0, 2, 1],
             }
 # nearest neighbour pairings for each cluster type
+# This numbers are the labels and are not changed by any rotation or reflexion
 NN_PAIRS_DICT = {'0': [],
     '1': [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)],
     '2': [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3),
@@ -83,11 +112,6 @@ NN_PAIRS_DICT = {'0': [],
             (9, 10), (9, 11), (9, 12), (10, 11), (10, 12), (11, 12)]
                         }
 
-
-clusters=['0','1','2','3','4Y','4I','4L']
-#for i in clusters:
-#    print i,NN_PAIRS_DICT[i]
-#
 
 # position vectors to sites in NLCE clusters
 R_DICT = {'0': np.array([[0, 0, 0]]),

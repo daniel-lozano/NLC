@@ -97,5 +97,17 @@ def specific_heat(eigenvals,eigenvect,Temp):
     
     return c_h
 
+def average_energy(eigenvals,eigenvect,Temp):
+    
+    average=0.0
+    Z=0.0 #Partition function
+    eigenvals-=np.ones(len(eigenvals))*min(eigenvals)#Set minimum eigen value at 0
+    for val,vect in zip(eigenvals,eigenvect.T):
+        average+=(val)*np.exp(-val/(KB*Temp))
+        Z+=np.exp(-val/(KB*Temp))
+    
+
+    return average/Z
+
 
 
