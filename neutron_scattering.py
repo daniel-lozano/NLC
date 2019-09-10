@@ -9,6 +9,7 @@ from time import time
 from quspin.basis import spin_basis_1d
 from quspin.operators import hamiltonian, quantum_LinearOperator
 from scipy.stats import cauchy
+from functions import *
 
 from constants import *
 
@@ -16,13 +17,13 @@ from constants import *
 print("----%----------%----------%------STARTING CALCULUS----%----------%----------%----------%------")
 
 
-Jzz=0.17 #First neighbors interaction constant
-Jpm=0.05
-Jppmm=0.05
-Jzpm=-0.14
+Jzz=1#0.17 #First neighbors interaction constant
+Jpm=0#.05
+Jppmm=0#.05
+Jzpm=-0#.14
 B_field=[0.0,0.0,0.0] # field
 Tempe=1.4 #Kelvin
-T= Tempe # Kelvin10.0/KB
+T= 1/KB#Tempe # Kelvin10.0/KB
 gz=4.32 #Lande factor
 
 Eta=[[0,-1,np.exp(np.pi*1j/3),np.exp(-np.pi*1j/3)],
@@ -33,16 +34,18 @@ Eta=[[0,-1,np.exp(np.pi*1j/3),np.exp(-np.pi*1j/3)],
 Gamma=-np.conj(Eta)
 
 
-size=int(input("Enter number of points for the scattering structure factor (int): "))
-q=2*np.pi*np.arange(-2.501, 2.501, 0.1)#0.025
+size=int(input("Enter number of points for the scattering structure factor (int >= 100): "))
+q=2*np.pi*np.linspace(-2.501, 2.501,size )#0.025
 ql=q#2*np.pi*np.linspace(0.01, 5.01, size)
 qh=q#2*np.pi*np.linspace(0.01, 2.501, size)
 cluster=['0','1','2','3','4Y','4I','4L']
+print("len of q=",len(q))
+
 
 #Arrays to store the different scattering results
 c_SF_intensity = np.zeros((len(cluster), ql.size, qh.size))
+print("shape=",c_SF_intensity.shape)
 c_NSF_intensity = np.zeros((len(cluster), ql.size, qh.size))
-print(c_NSF_intensity[0][0,0])
 
 
 print("First Neighbor interaction constant=",Jzz)
@@ -137,19 +140,15 @@ for c in range(len(cluster)-4):
             if(list(i).count(1)+list(i).count(-1)!=1):
                 print("There's a non classical contribution!!!")
         #Finding all the correlation coefficients
-    
+
     for s1,s2 in it.product(range(N),range(N)):
         
-       
         #Generating the coefficient of the quantum operator
         coefficient=[[(U_B*gz)**2,s1,s2]] #   [[value,site1,site2 ]]
         linear_op=quantum_LinearOperator([['zz',coefficient]], basis=basis, check_herm=False, check_symm=False)
         
         #Average value of the operator
         Op_T_average=get_thermal_average(eigenvals,eigenvect,linear_op,T)
-        
-       
-        
 
     #At this point the prefactor due to the direction and the exponential factor must be multiply by the average factor previously found to have the total scattering function, the different type of cluster must be included aswell
 
@@ -179,11 +178,11 @@ for c in range(len(cluster)-4):
 
                 c_SF_intensity[c][l,h]+=Op_T_average.real*np.cos(q_vector.dot(r_ij))*Projection_factor_SF/48.
 
+
     print("time used for cluster"+ str(c)+ "=", timedelta(seconds=time()-q_time))
     print("")
 
-
-
+#print(c_SF_intensity)
 np.savez_compressed("data_T"+str(round(T,2))+"_J"+str(Jzz)+"_Jpm"+str(Jpm),SF=c_SF_intensity, NSF=c_NSF_intensity, QH=qh, QL=ql)
 
 

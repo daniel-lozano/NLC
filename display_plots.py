@@ -10,6 +10,7 @@ from sys import argv
 
 from constants import *
 from sums import *
+from functions import *
 
 
 
@@ -139,7 +140,7 @@ if (ans2=="yes"):
         #cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Bare sum Total order=" +str(i))
         
-        plt.savefig("Bare_sum_"+str(i)+".png")
+#        plt.savefig("Bare_sum_"+str(i)+".png")
         plt.show()
 
 
@@ -191,7 +192,7 @@ if (ans3=="yes"):
         cbar.ax.set_xticklabels(cbar.ax.get_xticklabels(), rotation='vertical')
         plt.title("Euler sum Tot order= " +str(i+3))
 
-        plt.savefig("Euler_vs_Bare_sums_order"+str(i+3)+".png")
+#        plt.savefig("Euler_vs_Bare_sums_order"+str(i+3)+".png")
         plt.show()
 
 
@@ -209,6 +210,8 @@ if(ans4=="yes"):
 
     surf=ax.plot_surface(hh,l,Euler_sums_SF[-1],cmap=cm.coolwarm,
                         linewidth=0, antialiased=False)
+    surf=ax.plot_surface(hh,l,Euler_sums_NSF[-1],cmap=cm.coolwarm,
+                             linewidth=0,alpha=0.5, antialiased=False)
     ax.set_zlim(np.amin(Euler_sums_SF[-1]), np.amax(Euler_sums_SF)*2)
     ax.zaxis.set_major_locator(LinearLocator(10))
     ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
@@ -225,9 +228,9 @@ if(ans5=="yes"):
     ax = fig2.gca(projection='3d')
 
 
-    surf=ax.plot_surface(hh,l,Euler_sums_NSF[-1],cmap=cm.coolwarm,
+    surf=ax.plot_surface(hh,l,Euler_sums_SF[-1]-Euler_sums_NSF[-1],cmap=cm.coolwarm,
                          linewidth=0, antialiased=False)
-    ax.set_zlim(np.amin(Euler_sums_NSF[-1]), np.amax(Euler_sums_NSF))
+#    ax.set_zlim(np.amin(Euler_sums_NSF[-1]), np.amax(Euler_sums_NSF))
     ax.zaxis.set_major_locator(LinearLocator(10))
     ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
     ax.set_xlabel("$[h,h,0]$")
